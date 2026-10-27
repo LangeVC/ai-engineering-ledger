@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.local/schema/collector/common.schema.json",
+  "title": "AEL collector common definitions v0.1",
+  "$defs": {
+    "timestamp": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "alias": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"},
+    "source": {"enum": ["deepseek", "byteplus", "anthropic", "openai", "google", "kilo", "faigate", "github", "forgejo"]},
+    "product_domain": {"enum": ["byteplus_coding_plan", "byteplus_inference", "byteplus_billing", "subscription", "api", "runtime", "git", "manual"]},
+    "capability_name": {"enum": ["usage", "billing", "quota", "sessions", "runtime", "git", "traffic", "historical", "realtime", "manual"]},
+    "capability_status": {"enum": ["ready", "unsupported", "unverified", "unauthorized"]},
+    "period": {
+      "type": "object", "additionalProperties": false, "required": ["start", "end"],
+      "properties": {"start": {"$ref": "#/$defs/timestamp"}, "end": {"$ref": "#/$defs/timestamp"}}
+    },
+    "evidence_ref": {"type": "string", "pattern": "^ev_[A-Za-z0-9_-]+$"}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "revision_id": "01J9Z3K5Q8W2X4Y6A7B8C9D0E4",
+  "revision_no": 2,
+  "supersedes": "01J9Z3K5Q8W2X4Y6A7B8C9D0E3",
+  "reason_code": "reading_error",
+  "reason": "",
+  "recorded_at": "2026-10-26T01:00:01+01:00",
+  "effective": true,
+  "lineage": {
+    "mapping_version": "0.1.0",
+    "transformation_version": "0.1.0",
+    "input_measurement_ids": []
+  }
+}

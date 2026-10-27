@@ -1,0 +1,64 @@
+{
+  "source": "kilo",
+  "version": "7.0.46",
+  "session": {
+    "id": "ses_ea1986d1cffekCBgIdOHaxu20e",
+    "project_id": "39e238b24c5dbae1c5f351b8c38ad0a689b50ded",
+    "workspace_id": null,
+    "parent_id": null,
+    "slug": "eager-island",
+    "directory": "/synthetic/workspace/example-project",
+    "title": "Synthetic council session",
+    "version": "2.0.32",
+    "cost": 0.0,
+    "tokens_input": 131645,
+    "tokens_output": 36040,
+    "tokens_reasoning": 27853,
+    "tokens_cache_read": 4463744,
+    "tokens_cache_write": 0,
+    "agent": "build",
+    "model": {
+      "id": "deepseek-v4-pro",
+      "providerID": "faigate",
+      "variant": "high"
+    },
+    "time_created": 1792585208561,
+    "time_updated": 1792586692119
+  },
+  "messages": [
+    {
+      "id": "msg_15e679385001n6gkogO5ImnHN1",
+      "session_id": "ses_ea1986d1cffekCBgIdOHaxu20e",
+      "type": "agent-switched",
+      "seq": 1,
+      "time_created": 1792585208709,
+      "time_updated": 1792585208711,
+      "agent": "build"
+    },
+    {
+      "id": "msg_15e6794150010PJHIZKt31ZQ5L",
+      "session_id": "ses_ea1986d1cffekCBgIdOHaxu20e",
+      "type": "assistant",
+      "seq": 9,
+      "time_created": 1792585208866,
+      "time_updated": 1792585214656,
+      "agent": "build",
+      "model": {
+        "id": "deepseek-v4-pro",
+        "providerID": "faigate",
+        "variant": "high"
+      },
+      "cost": 0.0,
+      "tokens": {
+        "input": 16046,
+        "output": 96,
+        "reasoning": 71,
+        "cache": {
+          "read": 0,
+          "write": 0
+        }
+      },
+      "finish": "tool-calls"
+    }
+  ]
+}

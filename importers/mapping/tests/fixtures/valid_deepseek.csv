@@ -1,0 +1,4 @@
+date,model,requests,prompt_tokens,prompt_cache_hit_tokens,prompt_cache_miss_tokens,completion_tokens,reasoning_tokens,cost
+2026-10-25,deepseek-chat,14,28450,22100,6350,4120,0,0.007621
+2026-10-25,deepseek-reasoner,3,15800,8500,7300,3450,2100,0.015240
+2026-10-26,deepseek-chat,8,12600,10400,2200,1890,0,0.003348

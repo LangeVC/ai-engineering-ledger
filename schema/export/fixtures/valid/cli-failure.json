@@ -1,0 +1,1 @@
+{"contract_version":"0.1","command":"collect byteplus","status":"failure","exit_code":1,"runs":[{"source_alias":"byteplus","account_alias":"bp01","status":"failed","last_error_code":"auth_failed"}]}

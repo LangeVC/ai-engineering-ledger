@@ -1,0 +1,14 @@
+{
+  "contract_version": "0.1",
+  "encoding": "UTF-8, LF, header row, comma, RFC 4180 quoting",
+  "tables": {
+    "dataset": [["measurement_id","text",null],["observed_at_utc","timestamp","UTC"],["observed_at_source_offset","offset","UTC offset"],["source_alias","text",null],["account_alias","text",null],["provider","text",null],["model","text",null],["input_tokens","integer","tokens"],["output_tokens","integer","tokens"],["cost","decimal","currency"],["currency","text","ISO-4217"],["confidence","text",null]],
+    "providers": [["provider","text",null],["source_alias","text",null],["coverage_note","text",null]],
+    "models": [["provider","text",null],["model","text",null],["first_seen_utc","timestamp","UTC"],["last_seen_utc","timestamp","UTC"]],
+    "costs": [["measurement_id","text",null],["cost_kind","text",null],["cost","decimal","currency"],["currency","text","ISO-4217"]],
+    "git-activity": [["repository_alias","text",null],["commit_count","integer","count"],["period_from","date","timezone of manifest"],["period_to","date","timezone of manifest"]],
+    "releases": [["repository_alias","text",null],["tag","text",null],["released_at_utc","timestamp","UTC"]],
+    "reconciliation": [["subject","text",null],["result","text",null],["reason","text",null]],
+    "provenance": [["measurement_id","text",null],["evidence_id","text",null],["evidence_sha256","text","sha256"],["reproducible","text","true|false"]]
+  }
+}

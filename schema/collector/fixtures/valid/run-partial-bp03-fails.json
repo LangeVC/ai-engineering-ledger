@@ -1,0 +1,262 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_01",
+  "trigger": "scheduler",
+  "started_at": "2026-10-26T01:00:00+01:00",
+  "finished_at": "2026-10-26T01:00:00+01:00",
+  "status": "partial_failure",
+  "exit_status": 3,
+  "routing_subset": [],
+  "account_runs": [
+    {
+      "account_alias": "bp01",
+      "profile_id": "bp01",
+      "source": "byteplus",
+      "product_domain": "byteplus_billing",
+      "capability": "billing",
+      "status": "success",
+      "observed_at": "2026-10-26T01:00:00+01:00",
+      "coverage": {
+        "requested": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "delivered": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmed": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmation": "complete",
+        "pagination": {
+          "pages_fetched": 3,
+          "complete": true,
+          "truncated": false,
+          "next_cursor": null,
+          "last_committed_cursor": "p3"
+        }
+      },
+      "errors": [],
+      "process": {
+        "argv": [
+          "arkcli",
+          "--profile",
+          "bp01",
+          "billing",
+          "list"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "stdout_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stderr_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stdout_truncated": false,
+        "stderr_truncated": false,
+        "started_at": "2026-10-26T01:00:00+01:00",
+        "finished_at": "2026-10-26T01:00:00+01:00",
+        "profile_id": "bp01"
+      }
+    },
+    {
+      "account_alias": "bp02",
+      "profile_id": "bp02",
+      "source": "byteplus",
+      "product_domain": "byteplus_billing",
+      "capability": "billing",
+      "status": "success",
+      "observed_at": "2026-10-26T01:00:00+01:00",
+      "coverage": {
+        "requested": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "delivered": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmed": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmation": "complete",
+        "pagination": {
+          "pages_fetched": 3,
+          "complete": true,
+          "truncated": false,
+          "next_cursor": null,
+          "last_committed_cursor": "p3"
+        }
+      },
+      "errors": [],
+      "process": {
+        "argv": [
+          "arkcli",
+          "--profile",
+          "bp02",
+          "billing",
+          "list"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "stdout_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stderr_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stdout_truncated": false,
+        "stderr_truncated": false,
+        "started_at": "2026-10-26T01:00:00+01:00",
+        "finished_at": "2026-10-26T01:00:00+01:00",
+        "profile_id": "bp02"
+      }
+    },
+    {
+      "account_alias": "bp03",
+      "profile_id": "bp03",
+      "source": "byteplus",
+      "product_domain": "byteplus_billing",
+      "capability": "billing",
+      "status": "failure",
+      "observed_at": "2026-10-26T01:00:00+01:00",
+      "coverage": {
+        "requested": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "delivered": null,
+        "confirmed": null,
+        "confirmation": "unconfirmed"
+      },
+      "errors": [
+        {
+          "schema_version": "0.1",
+          "error_class": "auth",
+          "retryable": false,
+          "occurred_at": "2026-10-26T01:00:00+01:00",
+          "message": "request failed",
+          "retry_budget": {
+            "max": 3,
+            "used": 1
+          },
+          "http_status": 401
+        }
+      ],
+      "process": {
+        "argv": [
+          "arkcli",
+          "--profile",
+          "bp03",
+          "billing",
+          "list"
+        ],
+        "exit_code": 1,
+        "signal": null,
+        "stdout_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stderr_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stdout_truncated": false,
+        "stderr_truncated": false,
+        "started_at": "2026-10-26T01:00:00+01:00",
+        "finished_at": "2026-10-26T01:00:00+01:00",
+        "profile_id": "bp03"
+      }
+    },
+    {
+      "account_alias": "bp04",
+      "profile_id": "bp04",
+      "source": "byteplus",
+      "product_domain": "byteplus_billing",
+      "capability": "billing",
+      "status": "success",
+      "observed_at": "2026-10-26T01:00:00+01:00",
+      "coverage": {
+        "requested": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "delivered": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmed": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmation": "complete",
+        "pagination": {
+          "pages_fetched": 3,
+          "complete": true,
+          "truncated": false,
+          "next_cursor": null,
+          "last_committed_cursor": "p3"
+        }
+      },
+      "errors": [],
+      "process": {
+        "argv": [
+          "arkcli",
+          "--profile",
+          "bp04",
+          "billing",
+          "list"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "stdout_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stderr_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stdout_truncated": false,
+        "stderr_truncated": false,
+        "started_at": "2026-10-26T01:00:00+01:00",
+        "finished_at": "2026-10-26T01:00:00+01:00",
+        "profile_id": "bp04"
+      }
+    },
+    {
+      "account_alias": "bp05",
+      "profile_id": "bp05",
+      "source": "byteplus",
+      "product_domain": "byteplus_billing",
+      "capability": "billing",
+      "status": "success",
+      "observed_at": "2026-10-26T01:00:00+01:00",
+      "coverage": {
+        "requested": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "delivered": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmed": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-10-26T00:00:00Z"
+        },
+        "confirmation": "complete",
+        "pagination": {
+          "pages_fetched": 3,
+          "complete": true,
+          "truncated": false,
+          "next_cursor": null,
+          "last_committed_cursor": "p3"
+        }
+      },
+      "errors": [],
+      "process": {
+        "argv": [
+          "arkcli",
+          "--profile",
+          "bp05",
+          "billing",
+          "list"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "stdout_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stderr_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "stdout_truncated": false,
+        "stderr_truncated": false,
+        "started_at": "2026-10-26T01:00:00+01:00",
+        "finished_at": "2026-10-26T01:00:00+01:00",
+        "profile_id": "bp05"
+      }
+    }
+  ]
+}

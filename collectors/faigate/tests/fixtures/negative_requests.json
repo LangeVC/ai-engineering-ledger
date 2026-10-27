@@ -1,0 +1,10 @@
+[
+  {
+    "id": -1,
+    "timestamp": "invalid_timestamp",
+    "provider": "",
+    "model": "",
+    "prompt_tok": -10,
+    "compl_tok": -5
+  }
+]

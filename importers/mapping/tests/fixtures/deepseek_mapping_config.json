@@ -1,0 +1,75 @@
+{
+  "source": "deepseek",
+  "account_alias": "deepseek-main",
+  "format": "csv",
+  "column_mapping": {
+    "date": {
+      "target_field": "date",
+      "target_type": "iso8601_date",
+      "required": true
+    },
+    "model": {
+      "target_dimension": "model",
+      "target_type": "string",
+      "required": true
+    },
+    "requests": {
+      "target_metric": "requests",
+      "unit": "request",
+      "aggregation": "interval_total",
+      "target_type": "integer",
+      "required": false,
+      "default": 1
+    },
+    "prompt_tokens": {
+      "target_metric": "input_tokens",
+      "unit": "token",
+      "aggregation": "interval_total",
+      "target_type": "integer",
+      "required": true
+    },
+    "prompt_cache_hit_tokens": {
+      "target_metric": "cache_hit_tokens",
+      "unit": "token",
+      "aggregation": "interval_total",
+      "target_type": "integer",
+      "required": true
+    },
+    "prompt_cache_miss_tokens": {
+      "target_metric": "cache_miss_tokens",
+      "unit": "token",
+      "aggregation": "interval_total",
+      "target_type": "integer",
+      "required": true
+    },
+    "completion_tokens": {
+      "target_metric": "output_tokens",
+      "unit": "token",
+      "aggregation": "interval_total",
+      "target_type": "integer",
+      "required": true
+    },
+    "reasoning_tokens": {
+      "target_metric": "reasoning_tokens",
+      "unit": "token",
+      "aggregation": "interval_total",
+      "target_type": "integer",
+      "required": false,
+      "default": 0
+    },
+    "cost": {
+      "target_metric": "cost",
+      "unit": "usd",
+      "aggregation": "interval_total",
+      "target_type": "decimal",
+      "required": true
+    }
+  },
+  "invariants": [
+    "prompt_tokens == prompt_cache_hit_tokens + prompt_cache_miss_tokens",
+    "prompt_cache_hit_tokens >= 0",
+    "prompt_cache_miss_tokens >= 0",
+    "completion_tokens >= 0",
+    "reasoning_tokens <= completion_tokens"
+  ]
+}

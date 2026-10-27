@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.invalid/schema/core/0.1/revision.schema.json",
+  "title": "AEL revision / correction / lineage record v0.1",
+  "type": "object",
+  "required": ["revision_id", "revision_no", "supersedes", "reason_code", "reason", "recorded_at", "effective", "lineage"],
+  "additionalProperties": false,
+  "properties": {
+    "revision_id": {"$ref": "common.schema.json#/$defs/ulid"},
+    "revision_no": {"type": "integer", "minimum": 1},
+    "supersedes": {"description": "revision_id of the previous revision; null only for revision_no 1. Cycles are rejected by the semantic checker.", "anyOf": [{"$ref": "common.schema.json#/$defs/ulid"}, {"type": "null"}]},
+    "reason_code": {"enum": ["initial", "reading_error", "provider_correction", "renormalization"]},
+    "reason": {"type": "string", "minLength": 1},
+    "recorded_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "effective": {"description": "Exactly the effective revision counts in default reports.", "type": "boolean"},
+    "lineage": {
+      "type": "object",
+      "required": ["mapping_version", "transformation_version", "input_measurement_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "mapping_version": {"$ref": "common.schema.json#/$defs/semver"},
+        "transformation_version": {"$ref": "common.schema.json#/$defs/semver"},
+        "input_measurement_ids": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/ulid"}}
+      }
+    }
+  },
+  "if": {"properties": {"revision_no": {"const": 1}}},
+  "then": {"properties": {"supersedes": {"type": "null"}, "reason_code": {"const": "initial"}}},
+  "else": {"properties": {"supersedes": {"type": "string"}, "reason_code": {"not": {"const": "initial"}}}}
+}

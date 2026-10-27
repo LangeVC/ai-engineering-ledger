@@ -1,0 +1,13 @@
+{
+  "source": "kilo",
+  "version": "7.0.46",
+  "stats": {
+    "project_id": "39e238b24c5dbae1c5f351b8c38ad0a689b50ded",
+    "days": 7,
+    "total_cost": 0.0,
+    "tokens_input": 131645,
+    "tokens_output": 36040,
+    "tokens_cache_read": 4463744,
+    "tokens_cache_write": 0
+  }
+}

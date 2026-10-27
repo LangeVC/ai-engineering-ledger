@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.local/schema/collector/observation.schema.json",
+  "title": "Observation value with explicit missingness semantics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["state", "observed_at", "account_alias", "product_domain"],
+  "properties": {
+    "state": {"enum": ["value", "evidenced_zero", "partial", "unknown", "unsupported", "unverified", "unauthorized"]},
+    "value": {"type": "number"},
+    "unit": {"type": "string"},
+    "observed_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "account_alias": {"$ref": "common.schema.json#/$defs/alias"},
+    "product_domain": {"$ref": "common.schema.json#/$defs/product_domain"},
+    "evidence_ref": {"$ref": "common.schema.json#/$defs/evidence_ref"},
+    "reason": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {"if": {"properties": {"state": {"const": "value"}}}, "then": {"required": ["value", "unit", "evidence_ref"]}},
+    {"if": {"properties": {"state": {"const": "evidenced_zero"}}}, "then": {"required": ["value", "unit", "evidence_ref"], "properties": {"value": {"const": 0}}}},
+    {"if": {"properties": {"state": {"const": "partial"}}}, "then": {"required": ["value", "unit", "evidence_ref", "reason"]}},
+    {"if": {"properties": {"state": {"enum": ["unknown", "unsupported", "unverified", "unauthorized"]}}}, "then": {"required": ["reason"], "not": {"anyOf": [{"required": ["value"]}, {"required": ["unit"]}]}}}
+  ]
+}

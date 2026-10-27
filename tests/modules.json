@@ -1,0 +1,31 @@
+{
+ "modules": [
+  "collectors/account",
+  "collectors/backfill",
+  "collectors/byteplus",
+  "collectors/deepseek",
+  "collectors/faigate",
+  "collectors/forge",
+  "collectors/forgejo",
+  "collectors/github",
+  "collectors/kilo",
+  "collectors/orchestration",
+  "collectors/runtime",
+  "config/sources",
+  "derive/cost",
+  "derive/delta",
+  "derive/engineering",
+  "docs/operations",
+  "export/study",
+  "importers/files",
+  "importers/manual",
+  "importers/mapping",
+  "reconcile/correlation",
+  "reconcile/coverage",
+  "storage/evidence",
+  "storage/recovery",
+  "storage/revisions",
+  "cmd/ael",
+  "docs/adr"
+ ]
+}

@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-engineering-ledger"
+version = "0.1.0"
+description = "Local-first usage, cost, provenance, and data-quality ledger for AI engineering"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = []
+keywords = ["ai", "finops", "telemetry", "usage", "sqlite"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: System :: Monitoring",
+]
+
+[project.urls]
+Homepage = "https://github.com/LangeVC/ai-engineering-ledger"
+Repository = "https://github.com/LangeVC/ai-engineering-ledger.git"
+Issues = "https://github.com/LangeVC/ai-engineering-ledger/issues"
+
+[dependency-groups]
+dev = ["jsonschema>=4.21", "referencing>=0.35"]
+
+[project.scripts]
+ael = "ael.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+  "ael*",
+  "collectors*",
+  "config*",
+  "derive*",
+  "export*",
+  "importers*",
+  "reconcile*",
+  "storage*",
+]
+exclude = ["*.tests*", "tests*", "cmd*", "docs*", "schema*"]
+namespaces = true
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["collectors", "config", "derive", "export", "importers", "reconcile", "storage", "tests"]
+addopts = ["--import-mode=importlib"]

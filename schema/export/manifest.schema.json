@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ael:study-export-and-manifest@0.1",
+  "title": "AEL study export manifest",
+  "type": "object",
+  "required": ["schema_version", "transformation_version", "export_id", "export_timestamp", "filters", "timezone", "study_cutoff", "data_state", "csv_presentation_rule", "units", "tables", "source_status", "missing_periods", "confidence_distribution", "evidence_hashes", "content_hash"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "transformation_version": {"type": "string", "minLength": 1},
+    "export_id": {"type": "string", "minLength": 1},
+    "export_timestamp": {"$ref": "#/$defs/utc"},
+    "filters": {
+      "type": "object",
+      "required": ["from", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "to": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "accounts": {"type": "array", "items": {"type": "string"}},
+        "projects": {"type": "array", "items": {"type": "string"}},
+        "interval": {"const": "[from,to)"}
+      }
+    },
+    "timezone": {"type": "string", "pattern": "^(UTC|[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*)$"},
+    "study_cutoff": {"$ref": "#/$defs/utc"},
+    "data_state": {
+      "type": "object",
+      "required": ["id", "as_of"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^ds-[0-9a-f]{8,64}$"},
+        "as_of": {"$ref": "#/$defs/utc"},
+        "explicitly_selected_earlier": {"type": "boolean"}
+      }
+    },
+    "csv_presentation_rule": {"const": "formula-neutralization-prefix-apostrophe@0.1"},
+    "units": {
+      "type": "object",
+      "required": ["tokens", "cost", "time"],
+      "additionalProperties": false,
+      "properties": {
+        "tokens": {"const": "tokens"},
+        "cost": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "time": {"const": "ISO-8601 UTC, source offset kept in *_source_offset columns"}
+      }
+    },
+    "tables": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["name", "file", "rows", "sha256", "coverage"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"enum": ["dataset", "providers", "models", "costs", "git-activity", "releases", "reconciliation", "provenance"]},
+          "file": {"type": "string", "pattern": "^[a-z-]+\\.csv$"},
+          "rows": {"type": "integer", "minimum": 0},
+          "sha256": {"$ref": "#/$defs/sha"},
+          "coverage": {"enum": ["complete", "partial", "unavailable"]},
+          "coverage_note": {"type": "string"}
+        }
+      }
+    },
+    "source_status": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_alias", "account_alias", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "source_alias": {"type": "string"},
+          "account_alias": {"type": "string"},
+          "status": {"enum": ["complete", "partial", "missing", "manual"]}
+        }
+      }
+    },
+    "missing_periods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_alias", "from", "to"],
+        "additionalProperties": false,
+        "properties": {
+          "source_alias": {"type": "string"},
+          "from": {"type": "string"},
+          "to": {"type": "string"}
+        }
+      }
+    },
+    "confidence_distribution": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "evidence_hashes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id"],
+        "additionalProperties": false,
+        "properties": {
+          "evidence_id": {"type": "string"},
+          "sha256": {"$ref": "#/$defs/sha"},
+          "reproducible": {"type": "boolean"}
+        }
+      }
+    },
+    "content_hash": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "utc": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"},
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

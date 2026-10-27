@@ -1,0 +1,15 @@
+{
+  "catalog_version": "0.1",
+  "note": "Metric→unit/aggregation allowances. Quota percent is never converted to tokens and credits are never tokens without a separate evidenced transformation (TS §3). Provider-specific semantics not listed here are not decided; use window.type=custom with label.",
+  "metrics": {
+    "requests": {"units": ["request"]},
+    "input_tokens": {"units": ["token"]}, "output_tokens": {"units": ["token"]}, "reasoning_tokens": {"units": ["token"]},
+    "cache_read_tokens": {"units": ["token"]}, "cache_write_tokens": {"units": ["token"]},
+    "cache_hit_tokens": {"units": ["token"]}, "cache_miss_tokens": {"units": ["token"]}, "total_tokens": {"units": ["token"]},
+    "cost": {"units": ["usd", "eur", "cny"]}, "subscription_price": {"units": ["usd", "eur", "cny"]},
+    "credit_balance": {"units": ["credit"]}, "credits_consumed": {"units": ["credit"]},
+    "quota_used": {"units": ["token", "request", "credit"]}, "quota_remaining": {"units": ["token", "request", "credit"]}, "quota_limit": {"units": ["token", "request", "credit"]},
+    "quota_percent_used": {"units": ["percent"], "range": [0, 100]}
+  },
+  "non_negative_metrics_except": ["credit_balance"]
+}

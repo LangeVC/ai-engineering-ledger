@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.local/schema/collector/error.schema.json",
+  "title": "Collector error with retry budget (no secrets)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "error_class", "retryable", "occurred_at", "message", "retry_budget"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "error_class": {"enum": ["auth", "unauthorized", "rate_limited", "transient_5xx", "timeout", "config_secret_ref_missing", "unsupported", "protocol", "partial_response", "cancelled"]},
+    "retryable": {"type": "boolean"},
+    "occurred_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "http_status": {"type": "integer", "minimum": 100},
+    "retry_after_seconds": {"type": "integer", "minimum": 0},
+    "retry_budget": {
+      "type": "object", "additionalProperties": false, "required": ["max", "used"],
+      "properties": {"max": {"type": "integer", "minimum": 0}, "used": {"type": "integer", "minimum": 0}}
+    },
+    "message": {"type": "string", "minLength": 1, "not": {"pattern": "(?i)(bearer\\s+[a-z0-9._-]{8,}|sk-[a-z0-9]{8,}|secret=|password=)"}},
+    "secret_ref": {"type": "string"}
+  },
+  "allOf": [
+    {"if": {"properties": {"error_class": {"enum": ["auth", "unauthorized", "config_secret_ref_missing", "unsupported"]}}}, "then": {"properties": {"retryable": {"const": false}}}},
+    {"if": {"properties": {"error_class": {"enum": ["rate_limited", "transient_5xx", "timeout"]}}}, "then": {"properties": {"retryable": {"const": true}}}}
+  ]
+}

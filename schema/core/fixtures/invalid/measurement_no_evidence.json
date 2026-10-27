@@ -1,0 +1,38 @@
+{
+  "schema_version": "0.1",
+  "measurement_id": "01J9Z3K5Q8W2X4Y6A7B8C9D0E2",
+  "event_id": "01J9Z3K5Q8W2X4Y6A7B8C9D0E1",
+  "metric": "input_tokens",
+  "value": 154203,
+  "unit": "token",
+  "aggregation": "absolute",
+  "source": "byteplus",
+  "source_account_id": "bp03",
+  "provider": "example",
+  "model": "example-model",
+  "dimensions": {},
+  "provenance": {
+    "class": "P0",
+    "method": "cli",
+    "confidence": 0.99,
+    "confidence_reason": "Provider CLI default per TS 9",
+    "validation_status": "format_checked"
+  },
+  "evidence_ids": [],
+  "collector_version": "0.1.0",
+  "mapping_version": "0.1.0",
+  "revision": {
+    "revision_id": "01J9Z3K5Q8W2X4Y6A7B8C9D0E3",
+    "revision_no": 1,
+    "supersedes": null,
+    "reason_code": "initial",
+    "reason": "first capture",
+    "recorded_at": "2026-10-26T01:00:01+01:00",
+    "effective": true,
+    "lineage": {
+      "mapping_version": "0.1.0",
+      "transformation_version": "0.1.0",
+      "input_measurement_ids": []
+    }
+  }
+}

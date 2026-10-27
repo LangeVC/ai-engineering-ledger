@@ -1,0 +1,19 @@
+{
+  "descriptor": {
+    "schema_version": "0.1",
+    "evidence_id": "ev_01J9Z3K5Q8W2X4Y6A7B8C9D0E5",
+    "sha256": "6d5df6e480975e9d13443e581901d617ff345a30ec80dd49d5b2684513121753",
+    "size_bytes": 38,
+    "mime_type": "application/json",
+    "source": "byteplus",
+    "account": "bp03",
+    "created_at": "2026-10-26T01:00:00+01:00",
+    "collector_version": "0.1.0",
+    "capture_point": "provider_response_verbatim",
+    "redaction": {
+      "redacted": false,
+      "redaction_version": null
+    }
+  },
+  "artifact": "artifacts/sample_usage.json"
+}

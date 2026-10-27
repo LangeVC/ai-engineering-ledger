@@ -1,0 +1,9 @@
+{
+  "source": "kilo",
+  "version": "7.0.46",
+  "session": {
+    "id": "ses_negative_tokens",
+    "project_id": "proj_neg",
+    "tokens_input": -50
+  }
+}

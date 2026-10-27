@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1",
+  "event_id": "01J9Z3K5Q8W2X4Y6A7B8C9D0E1",
+  "event_type": "usage.snapshot",
+  "source": "byteplus",
+  "source_account_id": "bp03",
+  "collector": "byteplus.arkcli",
+  "mapping_version": "0.1.0",
+  "collected_at": "2026-10-26T01:00:00+01:00",
+  "observed_at": "2026-10-26T00:59:40+01:00",
+  "period_start": null,
+  "period_end": null,
+  "collection_phase": "prospective",
+  "project_id": null,
+  "repository_id": null,
+  "session_id": null,
+  "task_id": null,
+  "provenance": {
+    "class": "P0",
+    "method": "cli",
+    "confidence": 0.99,
+    "confidence_reason": "Provider CLI default per TS 9",
+    "validation_status": "format_checked"
+  },
+  "raw_evidence_id": "ev_01J9Z3K5Q8W2X4Y6A7B8C9D0E5",
+  "idempotency_key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "payload": {},
+  "window": {
+    "type": "5h",
+    "starts_at": "2026-10-26T00:00:00Z",
+    "ends_at": "2026-10-26T05:00:00Z"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": 999,
+  "owner": {
+    "id": 1,
+    "login": "example-org",
+    "username": "example-org"
+  },
+  "name": "ai-engineering-ledger",
+  "full_name": "example-org/example-repo",
+  "description": "AI Engineering Ledger",
+  "empty": true,
+  "private": true,
+  "fork": false,
+  "default_branch": "main",
+  "ssh_url": "git@forge.example.invalid:example-org/example-repo.git",
+  "clone_url": "https://forge.example.invalid/example-org/example-repo.git",
+  "html_url": "https://forge.example.invalid/example-org/example-repo"
+}

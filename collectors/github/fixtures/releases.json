@@ -1,0 +1,17 @@
+[
+  {
+    "url": "https://api.github.com/repos/octocat/Hello-World/releases/1",
+    "assets_url": "https://api.github.com/repos/octocat/Hello-World/releases/1/assets",
+    "upload_url": "https://uploads.github.com/repos/octocat/Hello-World/releases/1/assets{?name,label}",
+    "html_url": "https://github.com/octocat/Hello-World/releases/tag/v1.0.0",
+    "id": 1,
+    "tag_name": "v1.0.0",
+    "target_commitish": "main",
+    "name": "v1.0.0",
+    "draft": false,
+    "prerelease": false,
+    "created_at": "2026-10-02T12:00:00Z",
+    "published_at": "2026-10-02T12:05:00Z",
+    "body": "First public release"
+  }
+]

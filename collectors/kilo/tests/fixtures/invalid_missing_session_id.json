@@ -1,0 +1,8 @@
+{
+  "source": "kilo",
+  "version": "7.0.46",
+  "session": {
+    "project_id": "proj_without_session_id",
+    "tokens_input": 100
+  }
+}

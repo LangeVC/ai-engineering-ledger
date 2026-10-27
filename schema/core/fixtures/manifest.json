@@ -1,0 +1,248 @@
+[
+  {
+    "file": "valid/event_ok.json",
+    "kind": "event",
+    "expect_valid": true,
+    "note": ""
+  },
+  {
+    "file": "invalid/event_missing_provenance.json",
+    "kind": "event",
+    "expect_valid": false,
+    "note": "DQ01"
+  },
+  {
+    "file": "invalid/event_naive_timestamp.json",
+    "kind": "event",
+    "expect_valid": false,
+    "note": "explicit offset required"
+  },
+  {
+    "file": "invalid/event_custom_window_no_label.json",
+    "kind": "event",
+    "expect_valid": false,
+    "note": "no guessed provider semantics"
+  },
+  {
+    "file": "valid/event_window_ok.json",
+    "kind": "event",
+    "expect_valid": true,
+    "note": ""
+  },
+  {
+    "file": "invalid/event_period_inverted.json",
+    "kind": "event",
+    "expect_valid": false,
+    "note": "semantic"
+  },
+  {
+    "file": "invalid/event_unknown_field.json",
+    "kind": "event",
+    "expect_valid": false,
+    "note": ""
+  },
+  {
+    "file": "valid/measurement_ok.json",
+    "kind": "measurement",
+    "expect_valid": true,
+    "note": ""
+  },
+  {
+    "file": "valid/measurement_money_decimal_ok.json",
+    "kind": "measurement",
+    "expect_valid": true,
+    "note": "DQ04 exact decimal"
+  },
+  {
+    "file": "invalid/measurement_money_float.json",
+    "kind": "measurement",
+    "expect_valid": false,
+    "note": "DQ04 float drift"
+  },
+  {
+    "file": "invalid/measurement_unit_mismatch.json",
+    "kind": "measurement",
+    "expect_valid": false,
+    "note": "semantic: catalog"
+  },
+  {
+    "file": "invalid/measurement_percent_over_100.json",
+    "kind": "measurement",
+    "expect_valid": false,
+    "note": "US-03.b"
+  },
+  {
+    "file": "valid/measurement_percent_ok.json",
+    "kind": "measurement",
+    "expect_valid": true,
+    "note": ""
+  },
+  {
+    "file": "invalid/measurement_no_evidence.json",
+    "kind": "measurement",
+    "expect_valid": false,
+    "note": "US-03.a"
+  },
+  {
+    "file": "invalid/measurement_missing_unit.json",
+    "kind": "measurement",
+    "expect_valid": false,
+    "note": "DQ01"
+  },
+  {
+    "file": "invalid/measurement_bad_evidence_id.json",
+    "kind": "measurement",
+    "expect_valid": false,
+    "note": ""
+  },
+  {
+    "file": "valid/evidence_ok.json",
+    "kind": "evidence",
+    "expect_valid": true,
+    "note": ""
+  },
+  {
+    "file": "valid/evidence_redacted_ok.json",
+    "kind": "evidence",
+    "expect_valid": true,
+    "note": "capture point + redaction version"
+  },
+  {
+    "file": "invalid/evidence_redacted_without_version.json",
+    "kind": "evidence",
+    "expect_valid": false,
+    "note": ""
+  },
+  {
+    "file": "invalid/evidence_redacted_claims_verbatim.json",
+    "kind": "evidence",
+    "expect_valid": false,
+    "note": "must not pose as original"
+  },
+  {
+    "file": "invalid/evidence_bad_sha.json",
+    "kind": "evidence",
+    "expect_valid": false,
+    "note": "DQ02"
+  },
+  {
+    "file": "invalid/evidence_original_archived.json",
+    "kind": "evidence",
+    "expect_valid": false,
+    "note": "PRD 10.3"
+  },
+  {
+    "file": "valid/revision_initial_ok.json",
+    "kind": "revision",
+    "expect_valid": true,
+    "note": ""
+  },
+  {
+    "file": "valid/revision_correction_ok.json",
+    "kind": "revision",
+    "expect_valid": true,
+    "note": ""
+  },
+  {
+    "file": "invalid/revision_correction_no_reason.json",
+    "kind": "revision",
+    "expect_valid": false,
+    "note": "US-04.a"
+  },
+  {
+    "file": "invalid/revision_no2_without_supersedes.json",
+    "kind": "revision",
+    "expect_valid": false,
+    "note": ""
+  },
+  {
+    "file": "invalid/revision_initial_with_supersedes.json",
+    "kind": "revision",
+    "expect_valid": false,
+    "note": ""
+  },
+  {
+    "file": "invalid/measurement_nan.json",
+    "kind": "measurement",
+    "expect_valid": false,
+    "note": "US-03.b non-finite"
+  },
+  {
+    "file": "valid/chain_ok.json",
+    "kind": "chain",
+    "expect_valid": true,
+    "note": "US-04.a/b prior value reproducible"
+  },
+  {
+    "file": "invalid/chain_cycle.json",
+    "kind": "chain",
+    "expect_valid": false,
+    "note": "US-04.b cycle"
+  },
+  {
+    "file": "invalid/chain_two_effective.json",
+    "kind": "chain",
+    "expect_valid": false,
+    "note": "standard reports count only effective"
+  },
+  {
+    "file": "valid/bundle_ok.json",
+    "kind": "bundle",
+    "expect_valid": true,
+    "note": "US-03.d binding resolves"
+  },
+  {
+    "file": "invalid/bundle_unresolved.json",
+    "kind": "bundle",
+    "expect_valid": false,
+    "note": "US-03.a resolvable"
+  },
+  {
+    "file": "invalid/bundle_cross_account.json",
+    "kind": "bundle",
+    "expect_valid": false,
+    "note": "PRD 9.1 cross-account"
+  },
+  {
+    "file": "valid/sum_exact.json",
+    "kind": "sum",
+    "expect_valid": true,
+    "note": "DQ04"
+  },
+  {
+    "file": "invalid/sum_drift.json",
+    "kind": "sum",
+    "expect_valid": false,
+    "note": "DQ04 drift"
+  },
+  {
+    "file": "valid/artifact_ok.json",
+    "kind": "artifact",
+    "expect_valid": true,
+    "note": "DQ02/US-03.c hash matches"
+  },
+  {
+    "file": "invalid/artifact_one_byte_changed.json",
+    "kind": "artifact",
+    "expect_valid": false,
+    "note": "DQ02/US-03.c one byte flipped"
+  },
+  {
+    "file": "valid/idempotency_vector.json",
+    "kind": "idem",
+    "expect_valid": true,
+    "note": "DQ03 reference derivation vector + replay"
+  },
+  {
+    "file": "invalid/idempotency_replay_changes_key.json",
+    "kind": "idem",
+    "expect_valid": false,
+    "note": "DQ03 replay with different scope differs"
+  },
+  {
+    "file": "invalid/idempotency_wrong_vector.json",
+    "kind": "idem",
+    "expect_valid": false,
+    "note": "DQ03 vector mismatch"
+  }
+]

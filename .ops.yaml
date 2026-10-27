@@ -1,0 +1,14 @@
+# Repository-specific release destinations. Forgejo is the private canonical
+# source; GitHub is the public read-only distribution mirror.
+destinations:
+  - forge: forgejo
+    repo: langevc/ai-engineering-ledger
+    role: release
+    visibility: private
+  - forge: github
+    repo: LangeVC/ai-engineering-ledger
+    role: release
+    visibility: public
+
+# Canonical organisation forge host consumed by the ops-engine boundary gate.
+forge_hosts: [git.langevc.com]

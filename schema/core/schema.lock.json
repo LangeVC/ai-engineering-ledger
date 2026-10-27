@@ -1,0 +1,13 @@
+{
+  "aggregate": "d85c73c83f9b1001825b0f4738429b94cb1e54cec476440758b3f6c8d31b6d08",
+  "files": {
+    "common.schema.json": "0033eaa24e2ac1dfccb8ebaf4f6265763e7321ee2fc477c27f4a4d7efc70f290",
+    "event.schema.json": "125863131f83475996f203fa192cb9005f2b4244e35729597e747fbbc41de3da",
+    "evidence.schema.json": "0fdb676d6b7431bf41864dc4ae8bd0c7caa550697803aa72652cb0fd9a92df1e",
+    "measurement.schema.json": "d63ba428a6859b9695acc525760496a75291fdf18801f7ed1cb229c182f981bb",
+    "revision.schema.json": "b479844e6582246e02be6c0d5b5daca73372ca997f73a8b51c012bf1d1e156ab",
+    "units.catalog.json": "1d2aed90e6e4d384bb58d1f8c37c7c8138d1fa381340ac80b3fd7e333ae92c0d"
+  },
+  "hash_algorithm": "sha256-canonical-json",
+  "schema_version": "0.1"
+}

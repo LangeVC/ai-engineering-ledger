@@ -1,0 +1,36 @@
+class Ael < Formula
+  include Language::Python::Virtualenv
+
+  desc "Local-first AI engineering usage, cost, and provenance ledger"
+  homepage "https://github.com/LangeVC/ai-engineering-ledger"
+  url "https://github.com/LangeVC/ai-engineering-ledger/archive/refs/tags/v@VERSION@.tar.gz"
+  sha256 "@SHA256@"
+  license "@LICENSE@"
+  head "https://github.com/LangeVC/ai-engineering-ledger.git", branch: "main"
+
+  depends_on "python@3.12"
+
+  def install
+    virtualenv_install_with_resources
+  end
+
+  post_install_steps do
+    run "ael", args: ["setup", "--home", "{{var}}/lib/ael"], base: :bin
+  end
+
+  def caveats
+    <<~EOS
+      AEL data is stored in #{var}/lib/ael and is preserved by upgrade and uninstall.
+      Review and remove that directory manually only when you intentionally want to delete all ledger data.
+    EOS
+  end
+
+  test do
+    home = testpath/"ael-home"
+    system bin/"ael", "setup", "--home", home
+    system bin/"ael", "doctor", home
+    assert_path_exists home/"ledger.db"
+    assert_equal 0700, File.stat(home/"inbox").mode & 0777
+    assert_equal 0600, File.stat(home/"ledger.db").mode & 0777
+  end
+end

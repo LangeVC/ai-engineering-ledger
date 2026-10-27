@@ -1,0 +1,24 @@
+[
+  {
+    "date": "2026-10-25T10:00:00Z",
+    "model": "deepseek-chat",
+    "requests": 5,
+    "prompt_tokens": 1000,
+    "prompt_cache_hit_tokens": 800,
+    "prompt_cache_miss_tokens": 200,
+    "completion_tokens": 250,
+    "reasoning_tokens": 0,
+    "cost": "0.00045"
+  },
+  {
+    "date": "2026-10-25T11:00:00Z",
+    "model": "deepseek-chat",
+    "requests": 2,
+    "prompt_tokens": 500,
+    "prompt_cache_hit_tokens": 400,
+    "prompt_cache_miss_tokens": 100,
+    "completion_tokens": 100,
+    "reasoning_tokens": 0,
+    "cost": "0.00020"
+  }
+]

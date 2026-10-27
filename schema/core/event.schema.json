@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.invalid/schema/core/0.1/event.schema.json",
+  "title": "AEL canonical event envelope v0.1",
+  "type": "object",
+  "required": ["schema_version", "event_id", "event_type", "source", "source_account_id", "collector", "collected_at", "collection_phase", "provenance", "raw_evidence_id", "idempotency_key", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "event_id": {"$ref": "common.schema.json#/$defs/ulid"},
+    "event_type": {"enum": ["usage.snapshot","usage.interval","usage.request","usage.session","billing.charge","billing.snapshot","billing.credit","billing.subscription","quota.snapshot","quota.reset","runtime.request","runtime.session","runtime.trace","runtime.error","runtime.latency","engineering.commit","engineering.release","engineering.pull_request","engineering.issue","engineering.repository_snapshot","engineering.traffic_snapshot","manual.observation","manual.subscription","manual.correction"]},
+    "source": {"$ref": "common.schema.json#/$defs/alias"},
+    "source_account_id": {"$ref": "common.schema.json#/$defs/alias"},
+    "collector": {"type": "string", "minLength": 1},
+    "mapping_version": {"$ref": "common.schema.json#/$defs/semver"},
+    "collected_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "observed_at": {"anyOf": [{"$ref": "common.schema.json#/$defs/timestamp"}, {"type": "null"}]},
+    "period_start": {"anyOf": [{"$ref": "common.schema.json#/$defs/timestamp"}, {"type": "null"}]},
+    "period_end": {"anyOf": [{"$ref": "common.schema.json#/$defs/timestamp"}, {"type": "null"}]},
+    "collection_phase": {"enum": ["historical", "prospective"]},
+    "project_id": {"type": ["string", "null"]},
+    "repository_id": {"type": ["string", "null"]},
+    "session_id": {"type": ["string", "null"]},
+    "task_id": {"type": ["string", "null"]},
+    "provenance": {"$ref": "common.schema.json#/$defs/provenance"},
+    "raw_evidence_id": {"description": "Resolvable evidence binding (evidence.schema.json#evidence_id).", "type": "string", "pattern": "^ev_[0-9A-HJKMNP-TV-Z]{26}$"},
+    "idempotency_key": {"description": "Stable source-scoped identity: sha256 over (source, account, source-native id or documented key, scope window). Replay yields the same key (DQ03).", "$ref": "common.schema.json#/$defs/sha256"},
+    "window": {"$ref": "#/$defs/window"},
+    "payload": {"type": "object"}
+  },
+  "$defs": {
+    "window": {
+      "description": "Window identity: explicit type plus exact bounds. Unknown provider semantics must use 'custom' with a stated label, never a guess.",
+      "type": "object",
+      "required": ["type", "starts_at", "ends_at"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {"enum": ["5h", "daily", "weekly", "monthly", "subscription", "custom"]},
+        "label": {"type": "string", "minLength": 1},
+        "starts_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+        "ends_at": {"$ref": "common.schema.json#/$defs/timestamp"}
+      },
+      "if": {"properties": {"type": {"const": "custom"}}},
+      "then": {"required": ["label"]}
+    }
+  }
+}

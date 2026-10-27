@@ -1,0 +1,45 @@
+{
+  "source": "kilo",
+  "version": "7.0.46",
+  "session": {
+    "id": "ses_synth_council_12345",
+    "project_id": "proj_synth_999",
+    "workspace_id": "ws_alpha",
+    "parent_id": "ses_parent_000",
+    "council_id": "cncl_run_42",
+    "task_id": "task_issue_88",
+    "title": "Synthetic session with explicit council correlation",
+    "tokens_input": 5000,
+    "tokens_output": 1200,
+    "tokens_reasoning": 800,
+    "tokens_cache_read": 10000,
+    "tokens_cache_write": 200,
+    "cost": 0.05,
+    "time_created": 1792585208000,
+    "time_updated": 1792585218000
+  },
+  "messages": [
+    {
+      "id": "msg_synth_req_1",
+      "session_id": "ses_synth_council_12345",
+      "type": "assistant",
+      "time_created": 1792585209000,
+      "time_updated": 1792585211000,
+      "model": {
+        "id": "claude-3-5-sonnet",
+        "providerID": "anthropic"
+      },
+      "tokens": {
+        "input": 5000,
+        "output": 1200,
+        "reasoning": 800,
+        "cache": {
+          "read": 10000,
+          "write": 200
+        }
+      },
+      "cost": 0.05,
+      "latency_ms": 2000.0
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.local/schema/collector/capability.schema.json",
+  "title": "Capability declaration with explicit profile binding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source", "account_alias", "product_domain", "capability", "status", "profile_binding", "checked_at"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "source": {"$ref": "common.schema.json#/$defs/source"},
+    "account_alias": {"$ref": "common.schema.json#/$defs/alias"},
+    "product_domain": {"$ref": "common.schema.json#/$defs/product_domain"},
+    "capability": {"$ref": "common.schema.json#/$defs/capability_name"},
+    "status": {"$ref": "common.schema.json#/$defs/capability_status"},
+    "profile_binding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profile_id", "explicit", "global_state_mutated"],
+      "properties": {
+        "profile_id": {"$ref": "common.schema.json#/$defs/alias"},
+        "explicit": {"const": true},
+        "global_state_mutated": {"const": false}
+      }
+    },
+    "checked_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "read_only_probe": {"type": "boolean"},
+    "evidence_ref": {"$ref": "common.schema.json#/$defs/evidence_ref"},
+    "reason": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"enum": ["ready", "unauthorized"]}}}, "then": {"required": ["evidence_ref", "read_only_probe"], "properties": {"read_only_probe": {"const": true}}}},
+    {"if": {"properties": {"status": {"enum": ["unsupported", "unverified"]}}}, "then": {"required": ["reason"]}}
+  ]
+}

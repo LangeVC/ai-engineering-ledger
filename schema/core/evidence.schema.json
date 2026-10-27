@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.invalid/schema/core/0.1/evidence.schema.json",
+  "title": "AEL evidence artifact descriptor v0.1",
+  "type": "object",
+  "required": ["schema_version", "evidence_id", "sha256", "size_bytes", "mime_type", "source", "account", "created_at", "collector_version", "capture_point", "redaction"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "evidence_id": {"type": "string", "pattern": "^ev_[0-9A-HJKMNP-TV-Z]{26}$"},
+    "sha256": {"description": "SHA-256 over the bytes actually stored (post-redaction).", "$ref": "common.schema.json#/$defs/sha256"},
+    "size_bytes": {"type": "integer", "minimum": 0},
+    "mime_type": {"type": "string", "minLength": 1},
+    "source": {"$ref": "common.schema.json#/$defs/alias"},
+    "account": {"$ref": "common.schema.json#/$defs/alias"},
+    "created_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "observed_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "collector_version": {"type": "string", "minLength": 1},
+    "capture_point": {
+      "description": "Where in the pipeline the stored bytes were captured.",
+      "enum": ["provider_response_verbatim", "post_redaction", "user_export_file", "user_redacted_screenshot", "local_log_extract"]
+    },
+    "redaction": {
+      "type": "object",
+      "required": ["redacted", "redaction_version"],
+      "additionalProperties": false,
+      "properties": {
+        "redacted": {"type": "boolean"},
+        "redaction_version": {"type": ["string", "null"]},
+        "original_sha256": {"description": "Forbidden: originals with secrets are not archived (PRD 10.3).", "not": {}}
+      },
+      "if": {"properties": {"redacted": {"const": true}}},
+      "then": {"properties": {"redaction_version": {"type": "string", "minLength": 1}}},
+      "else": {"properties": {"redaction_version": {"type": "null"}}}
+    }
+  },
+  "if": {"properties": {"redaction": {"properties": {"redacted": {"const": true}}}}},
+  "then": {"properties": {"capture_point": {"not": {"const": "provider_response_verbatim"}}}}
+}

@@ -1,0 +1,23 @@
+{
+  "inputs": {
+    "source": "byteplus",
+    "account": "bp03",
+    "native_id": "req-123",
+    "window": {
+      "type": "5h",
+      "starts_at": "2026-10-26T00:00:00+01:00",
+      "ends_at": "2026-10-26T05:00:00+01:00"
+    }
+  },
+  "expected": "0fc547bffacea28b9d7f250baea3b62f8cca9b0614a37a77754a852bf0f0f5ab",
+  "replay_inputs": {
+    "source": "byteplus",
+    "account": "bp03",
+    "native_id": "req-123",
+    "window": {
+      "type": "5h",
+      "starts_at": "2026-10-26T00:00:00+01:00",
+      "ends_at": "2026-10-26T05:00:00+01:00"
+    }
+  }
+}

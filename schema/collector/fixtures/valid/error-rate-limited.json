@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1",
+  "error_class": "rate_limited",
+  "retryable": true,
+  "occurred_at": "2026-10-26T01:00:00+01:00",
+  "message": "request failed",
+  "retry_budget": {
+    "max": 3,
+    "used": 1
+  },
+  "http_status": 429,
+  "retry_after_seconds": 30
+}

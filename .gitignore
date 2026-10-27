@@ -1,1 +1,19 @@
 .skillweave/
+.venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Local operator data and private execution material
+HANDOFF_*.md
+*.db
+*.db-shm
+*.db-wal
+/inbox/
+/evidence/
+/exports/
+/backups/
+.ael/

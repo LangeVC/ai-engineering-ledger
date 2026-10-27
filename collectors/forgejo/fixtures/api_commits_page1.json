@@ -1,0 +1,23 @@
+[
+  {
+    "sha": "a1b2c3d4e5f67890123456789abcdef012345678",
+    "commit": {
+      "author": {
+        "name": "Forgejo Committer",
+        "email": "committer@forgejo.org",
+        "date": "2026-10-15T10:00:00Z"
+      },
+      "committer": {
+        "name": "Forgejo Committer",
+        "email": "committer@forgejo.org",
+        "date": "2026-10-15T10:00:00Z"
+      },
+      "message": "feat: add initial forgejo feature\n\nDetailed description of change.",
+      "tree": {
+        "sha": "0123456789abcdef0123456789abcdef01234567"
+      },
+      "url": "https://git.example.com/api/v1/repos/owner/repo/git/commits/a1b2c3d4e5f67890123456789abcdef012345678"
+    },
+    "parents": []
+  }
+]

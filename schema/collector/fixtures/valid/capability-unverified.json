@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1",
+  "source": "byteplus",
+  "account_alias": "bp03",
+  "product_domain": "byteplus_coding_plan",
+  "capability": "quota",
+  "status": "unverified",
+  "profile_binding": {
+    "profile_id": "bp03",
+    "explicit": true,
+    "global_state_mutated": false
+  },
+  "checked_at": "2026-10-26T01:00:00+01:00",
+  "reason": "not verified"
+}
