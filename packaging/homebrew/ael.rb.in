@@ -12,6 +12,9 @@ class Ael < Formula
 
   def install
     virtualenv_install_with_resources
+    executable = (bin/"ael").realpath
+    rm bin/"ael"
+    (bin/"ael").write_env_script executable, AEL_HOME: var/"lib/ael"
   end
 
   post_install_steps do
