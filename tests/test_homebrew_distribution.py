@@ -92,6 +92,7 @@ def test_formula_render_requires_release_inputs() -> None:
     assert 'sha256 "' + "a" * 64 + '"' in formula
     assert 'license "Apache-2.0"' in formula
     assert "service do" not in formula
+    assert 'depends_on "tesseract" => :recommended' in formula
     assert "post_install_steps do" in formula
     assert 'run "ael", args: ["setup"' in formula
     with pytest.raises(ValueError):

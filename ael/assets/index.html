@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Engineering Ledger</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to ledger</a>
+  <header class="masthead">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">AEL</span><div><strong>AI Engineering Ledger</strong><small>LOCAL EVIDENCE CONSOLE</small></div></div>
+    <div class="system-state"><span class="pulse" aria-hidden="true"></span><span id="connection-state">securing session</span></div>
+  </header>
+  <nav aria-label="Primary">
+    <button class="nav-tab active" data-view="overview">Ledger</button>
+    <button class="nav-tab" data-view="capture">Capture</button>
+    <button class="nav-tab" data-view="sources">Sources</button>
+  </nav>
+  <main id="main" tabindex="-1">
+    <section id="overview" class="view active" aria-labelledby="overview-title">
+      <div class="hero-grid">
+        <div><p class="eyebrow">Evidence before inference</p><h1 id="overview-title">Every number<br>keeps its story.</h1><p class="lede">Provider truth, execution truth, and manual evidence stay separate—until you explicitly confirm the join.</p></div>
+        <div class="ledger-seal" aria-label="Local only"><span>01</span><strong>LOCAL<br>ONLY</strong><small>NO CLOUD OCR</small></div>
+      </div>
+      <div class="metric-strip" id="metric-strip" aria-live="polite"><div><strong>—</strong><span>observations</span></div><div><strong>—</strong><span>source groups</span></div><div><strong>—</strong><span>accounts</span></div><div><strong>offline</strong><span>network mode</span></div></div>
+      <div class="toolbar"><label>Filter ledger <input id="report-filter" type="search" placeholder="provider, account, metric…"></label><button id="refresh-report" class="button ghost">Refresh report</button></div>
+      <div class="table-wrap"><table><caption>Provider report</caption><thead><tr><th>Source / account</th><th>Metric</th><th>Scope</th><th>Value</th><th>Quality</th></tr></thead><tbody id="report-body"><tr><td colspan="5">No ledger data loaded.</td></tr></tbody></table></div>
+      <p id="kilo-warning" class="notice hidden">Kilo aggregate, session, and request scopes are non-additive and remain separated.</p>
+    </section>
+
+    <section id="capture" class="view" aria-labelledby="capture-title">
+      <p class="eyebrow">Two-phase ingestion</p><h1 id="capture-title">Preview. Inspect. Confirm.</h1>
+      <div class="capture-grid">
+        <form id="structured-form" class="panel">
+          <div class="panel-index">A</div><h2>Structured evidence</h2><p>JSON and CSV use the same normalization contract as the CLI.</p>
+          <label>Source <select name="source" required><option>deepseek</option><option>byteplus</option><option>claude</option><option>codex</option><option>antigravity</option><option>kilo</option><option>faigate</option><option>github</option><option>forgejo</option><option>generic</option></select></label>
+          <label>Account alias <input name="account" required placeholder="bp01"></label>
+          <label>Capture kind <select name="kind"><option>canonical</option><option>manual-snapshot</option><option>deepseek-csv</option><option>deepseek-balance</option><option>deepseek-usage</option><option>byteplus-plan</option><option>byteplus-stats</option><option>byteplus-billing</option><option>kilo-session</option><option>kilo-stats</option></select></label>
+          <label>Evidence file <input name="file" type="file" required></label>
+          <button class="button" type="submit">Create zero-write preview</button>
+        </form>
+        <form id="screenshot-form" class="panel accent-panel">
+          <div class="panel-index">B</div><h2>Dashboard screenshot</h2><p>Optional local Tesseract finds candidates. You decide their meaning.</p>
+          <label>Provider template <select name="source"><option value="claude">Claude Pro</option><option value="codex">Codex Plus</option><option value="antigravity">Google AI Pro / Antigravity</option></select></label>
+          <label>Account alias <input name="account" required></label>
+          <label>Screenshot <input name="file" type="file" accept="image/png,image/jpeg,image/webp" required></label>
+          <img id="local-preview" class="image-preview hidden" alt="Selected screenshot preview">
+          <button class="button inverse" type="submit">Build review draft</button>
+        </form>
+      </div>
+      <section id="draft-panel" class="review-drawer hidden" aria-live="polite"><div><p class="eyebrow">Untrusted draft</p><h2>Nothing has entered the ledger.</h2></div><pre id="draft-json"></pre><div class="review-actions"><button id="download-draft" class="button ghost">Download JSON</button><button id="discard-draft" class="button ghost">Discard</button><button id="confirm-structured" class="button hidden">Confirm structured import</button></div></section>
+      <form id="manual-form" class="panel full-panel">
+        <div><p class="eyebrow">Human confirmation</p><h2>Guided subscription snapshot</h2><p>Use this after reading the dashboard—or correcting OCR candidates.</p></div>
+        <label>Product <select name="product"><option value="claude">Claude Pro</option><option value="codex">Codex Plus</option><option value="antigravity">Google AI Pro / Antigravity</option></select></label>
+        <label>Account alias <input name="account" required></label>
+        <label>Observed at <input name="observed_at" type="datetime-local" required></label>
+        <label>Primary remaining % / credit balance <input name="primary" type="number" min="0" step="0.01" required></label>
+        <label>Weekly remaining % / credits consumed <input name="secondary" type="number" min="0" step="0.01"></label>
+        <button class="button" type="submit">Review canonical JSON</button>
+      </form>
+    </section>
+
+    <section id="sources" class="view" aria-labelledby="sources-title">
+      <p class="eyebrow">Identity without secrets</p><h1 id="sources-title">Source aliases.</h1>
+      <div class="source-layout">
+        <form id="alias-form" class="panel"><h2>Add or update alias</h2><label>Alias id <input name="id" required pattern="[A-Za-z0-9._-]+"></label><label>Provider <input name="provider" required></label><label>Label <input name="label"></label><label>Cadence <select name="cadence"><option>manual</option><option>hourly</option><option>daily</option><option>weekly</option></select></label><label>Secret reference <input name="secret_ref" placeholder="keychain:ael/deepseek"></label><button class="button" type="submit">Save alias</button></form>
+        <div><h2>Configured aliases</h2><div id="alias-list" class="alias-list"><p>No aliases configured.</p></div></div>
+      </div>
+    </section>
+  </main>
+  <footer><span>AEL / APACHE-2.0 / LOCAL-FIRST</span><span id="footer-state">SESSION LOCKED</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
