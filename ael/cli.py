@@ -9,6 +9,7 @@ from pathlib import Path
 
 from ael.ledger import OperationalLedger
 from ael.paths import resolve_database, setup_workspace, workspace_health, workspace_paths
+from ael.webui import serve
 from export.study import StudyExporter
 from reconcile.coverage import ComparableScope, compare
 from storage.recovery import RecoveryManager
@@ -131,6 +132,11 @@ def _restore(args: argparse.Namespace) -> int:
     return _emit("success", "restore", files=len(manifest["files"]))
 
 
+def _ui(args: argparse.Namespace) -> int:
+    return serve(home=args.home, database=args.database, bind=args.bind,
+                 port=args.port, open_browser=not args.no_open)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ael")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -173,6 +179,10 @@ def build_parser() -> argparse.ArgumentParser:
     backup = sub.add_parser("backup"); backup.add_argument("--database"); backup.add_argument("--config")
     backup.add_argument("--evidence", action="append", default=[]); backup.add_argument("--output", required=True); backup.set_defaults(run=_backup)
     restore = sub.add_parser("restore"); restore.add_argument("--backup", required=True); restore.add_argument("--output", required=True); restore.set_defaults(run=_restore)
+    ui = sub.add_parser("ui")
+    ui.add_argument("--home"); ui.add_argument("--database")
+    ui.add_argument("--bind", default="127.0.0.1"); ui.add_argument("--port", type=int, default=0)
+    ui.add_argument("--no-open", action="store_true"); ui.set_defaults(run=_ui)
     preview = sub.add_parser("delete-preview"); preview.add_argument("--input", required=True); preview.add_argument("--account", required=True); preview.set_defaults(run=_delete_preview)
     delete = sub.add_parser("delete"); delete.add_argument("--input", required=True); delete.add_argument("--account", required=True)
     delete.add_argument("--confirm", required=True); delete.set_defaults(run=_delete)

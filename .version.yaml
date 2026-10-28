@@ -4,6 +4,5 @@ locations:
   - path: pyproject.toml
     pattern: '^version\s*=\s*"(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)"$'
     required: true
-release_title_policy:
-  pattern: '^AI Engineering Ledger v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$'
-  example: 'AI Engineering Ledger v0.1.0'
+release_title_pattern: '^AI Engineering Ledger v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$'
+release_title_example: 'AI Engineering Ledger v0.2.0'

@@ -180,10 +180,13 @@ class OperationalLedger:
         }
 
     def ingest_file(self, *, source: str, account: str, kind: str, input_path: str | Path,
-                    observed_at: str | None = None) -> dict[str, Any]:
+                    observed_at: str | None = None,
+                    evidence_sha256_override: str | None = None) -> dict[str, Any]:
         path = Path(input_path)
         raw = path.read_bytes()
-        evidence_sha = hashlib.sha256(raw).hexdigest()
+        evidence_sha = evidence_sha256_override or hashlib.sha256(raw).hexdigest()
+        if len(evidence_sha) != 64 or any(char not in "0123456789abcdef" for char in evidence_sha):
+            raise ValueError("evidence SHA-256 override must be 64 lowercase hexadecimal characters")
         evidence_name = path.name
         try:
             observations, rejected, errors, incomplete = normalize_capture(
