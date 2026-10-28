@@ -55,6 +55,18 @@ unverified. Zero is recorded only when the evidence actually proves zero.
 
 ## Installation
 
+### Browser GUI
+
+Start the offline, loopback-only evidence console with:
+
+```bash
+ael ui
+```
+
+Use `ael ui --no-open --port 0` for automation. The GUI uses the same `AEL_HOME`, `AEL_DB_PATH`, SQLite ledger, provenance and deduplication contracts as the CLI. Structured imports are previewed without writes and require explicit confirmation.
+
+Dashboard screenshots always create an untrusted review draft. If the local `tesseract` executable is available (`brew install tesseract`), AEL includes OCR text and unclassified numeric candidates; it never assigns quota or reset semantics automatically. Without Tesseract, manual review remains fully functional. No screenshot or OCR text is sent to a cloud service.
+
 ### Homebrew
 
 ```bash
@@ -150,9 +162,9 @@ Postgres deployment possible without making a server a prerequisite.
 
 ## Project status
 
-Version 0.1 is an alpha release. The CLI, schema, local workspace, operational
-imports and reporting contracts are usable; browser-based configuration and
-snapshot extraction are planned separately. Provider capabilities remain
+Version 0.2 is an alpha release. The CLI, schema, local workspace, operational
+imports and reporting contracts are usable. It includes the loopback-only
+browser UI and optional local Tesseract adapter. Provider capabilities remain
 evidence-driven and may differ by account, plan and region.
 
 ## Development

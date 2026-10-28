@@ -129,7 +129,7 @@ review.
 
 1. Pass AEL tests, version gate, public-surface audit, and license gate.
 2. Commit through the private Forgejo canonical and merge the release branch.
-3. Create canonical tag `v0.1.0` through the governed release path.
+3. Create canonical tag `vX.Y.Z` through the governed release path.
 4. Verify the exact branch and tag refs on the public GitHub mirror.
 5. Resolve the public GitHub source archive and calculate its SHA-256.
 6. Render `Formula/ael.rb` in the public `LangeVC/homebrew-tap` repository.

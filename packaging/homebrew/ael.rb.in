@@ -9,6 +9,7 @@ class Ael < Formula
   head "https://github.com/LangeVC/ai-engineering-ledger.git", branch: "main"
 
   depends_on "python@3.12"
+  depends_on "tesseract" => :recommended
 
   def install
     virtualenv_install_with_resources
@@ -24,6 +25,8 @@ class Ael < Formula
   def caveats
     <<~EOS
       AEL data is stored in #{var}/lib/ael and is preserved by upgrade and uninstall.
+      Local screenshot OCR uses Tesseract when installed; every extracted value still requires review.
+      Install without OCR using `brew install --without-tesseract ael`.
       Review and remove that directory manually only when you intentionally want to delete all ledger data.
     EOS
   end

@@ -3,6 +3,19 @@
 All notable changes to AI Engineering Ledger are documented here. Release
 versions follow Semantic Versioning.
 
+## 0.2.0 — 2026-10-28
+
+### Local browser GUI
+
+- Added the loopback-only `ael ui` evidence console with one-time bootstrap,
+  session/CSRF protection and embedded offline assets.
+- Added zero-write structured import previews, explicit hash-bound confirmation,
+  secret-free source aliases and provider-report parity.
+- Added private dashboard screenshot drafts with optional local Tesseract OCR;
+  OCR values remain unclassified until human confirmation.
+- Added browser security, upload lifecycle, accessibility, packaging and
+  installed-wheel regression tests.
+
 ## 0.1.0 — 2026-10-28
 
 The first public alpha establishes a local, evidence-first ledger for comparing
