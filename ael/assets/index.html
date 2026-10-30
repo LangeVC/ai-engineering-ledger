@@ -24,9 +24,19 @@
         <div class="ledger-seal" aria-label="Local only"><span>01</span><strong>LOCAL<br>ONLY</strong><small>NO CLOUD OCR</small></div>
       </div>
       <div class="metric-strip" id="metric-strip" aria-live="polite"><div><strong>—</strong><span>observations</span></div><div><strong>—</strong><span>source groups</span></div><div><strong>—</strong><span>accounts</span></div><div><strong>offline</strong><span>network mode</span></div></div>
-      <div class="toolbar"><label>Filter ledger <input id="report-filter" type="search" placeholder="provider, account, metric…"></label><button id="refresh-report" class="button ghost">Refresh report</button></div>
+      <form id="study-filter" class="toolbar study-filter">
+        <label>Start <input id="study-start" name="start" type="date"></label>
+        <label>End, exclusive <input id="study-end" name="end_exclusive" type="date"></label>
+        <label>Filter ledger <input id="report-filter" type="search" placeholder="provider, account, metric…"></label>
+        <button id="refresh-report" class="button ghost" type="submit">Apply range</button>
+      </form>
+      <div id="study-notices" class="notice hidden" role="status" aria-live="polite"></div>
       <div class="table-wrap"><table><caption>Provider report</caption><thead><tr><th>Source / account</th><th>Metric</th><th>Scope</th><th>Value</th><th>Quality</th></tr></thead><tbody id="report-body"><tr><td colspan="5">No ledger data loaded.</td></tr></tbody></table></div>
       <p id="kilo-warning" class="notice hidden">Kilo aggregate, session, and request scopes are non-additive and remain separated.</p>
+      <div class="analysis-grid">
+        <section class="panel"><h2>Filtered claims</h2><p>Each value keeps coverage, confidence, and evidence references.</p><div id="claim-list" class="analysis-list"><p>No claims in range.</p></div></section>
+        <section class="panel"><h2>Filtered correlations</h2><p>Correlations appear only for comparable paired periods and never imply causality.</p><div id="correlation-list" class="analysis-list"><p>No comparable correlation in range.</p></div></section>
+      </div>
     </section>
 
     <section id="capture" class="view" aria-labelledby="capture-title">

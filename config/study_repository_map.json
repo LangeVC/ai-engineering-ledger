@@ -1,0 +1,44 @@
+{
+  "schema_version": "0.3.0",
+  "registry_id": "langevc-study-repositories",
+  "registry_version": 1,
+  "status": "draft",
+  "repositories": [
+    {
+      "canonical_id": "repo:ael",
+      "alias": "ai-engineering-ledger",
+      "organization_alias": "langevc",
+      "product_id": "ael",
+      "component": "core",
+      "maturity": "active",
+      "study_inclusion": "included",
+      "canonical_source": "forgejo",
+      "source_bindings": [
+        {
+          "source": "forgejo",
+          "source_alias": "forgejo-langevc",
+          "repository_alias": "langevc/ai-engineering-ledger",
+          "role": "canonical"
+        },
+        {
+          "source": "github",
+          "source_alias": "github-langevc",
+          "repository_alias": "LangeVC/ai-engineering-ledger",
+          "role": "mirror",
+          "equivalence_evidence": {
+            "method": "operator_verified_mirror_policy",
+            "evidence_ref": "ael-repository-governance"
+          }
+        }
+      ]
+    }
+  ],
+  "unassigned_repositories": [],
+  "policies": {
+    "name_only_mirror_matching": "forbidden",
+    "included_repository_requires_canonical_id": true,
+    "unassigned_product_claims": "excluded",
+    "mapping_updates": "new_registry_version",
+    "remote_urls": "forbidden"
+  }
+}

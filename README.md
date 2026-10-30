@@ -162,9 +162,11 @@ Postgres deployment possible without making a server a prerequisite.
 
 ## Project status
 
-Version 0.2 is an alpha release. The CLI, schema, local workspace, operational
-imports and reporting contracts are usable. It includes the loopback-only
-browser UI and optional local Tesseract adapter. Provider capabilities remain
+Version 0.3 is an alpha release. The CLI, schema, local workspace, operational
+imports and reporting contracts are usable. It adds local harness adapters,
+canonical filtered Study JSON, a claims/correlation contract and one shared
+calculation path for the loopback-only dashboard and export. Optional local
+Tesseract capture remains available. Provider capabilities remain
 evidence-driven and may differ by account, plan and region.
 
 ## Development
