@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.4",
+  "contract": "ael.living.contract-registry",
+  "contracts": {
+    "collection_job": "collection-job-v0.4.schema.json",
+    "source_health": "source-health-v0.4.schema.json",
+    "study_snapshot": "study-snapshot-v0.4.schema.json",
+    "study_diff": "study-diff-v0.4.schema.json",
+    "evidence_domain_record": "evidence-domain-record-v0.4.schema.json"
+  },
+  "compatibility": {
+    "reads": [
+      "ael.study.data-export@0.3"
+    ],
+    "writes": [
+      "ael.collection-job@0.4",
+      "ael.study.source-health@0.4",
+      "ael.study.snapshot@0.4",
+      "ael.study.diff@0.4",
+      "ael.evidence-domain-record@0.4"
+    ]
+  }
+}
+

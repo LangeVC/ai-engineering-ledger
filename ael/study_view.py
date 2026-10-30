@@ -320,4 +320,30 @@ def build_ledger_dashboard_view(
     return view
 
 
-__all__ = ["build_ledger_dashboard_view", "dashboard_view_from_canonical"]
+def build_ledger_study_json(
+    database: str | Path,
+    *,
+    start: str | None = None,
+    end_exclusive: str | None = None,
+    timezone_name: str = "Europe/Berlin",
+) -> dict[str, Any]:
+    """Return the canonical v0.3 data export consumed by living-study builds."""
+    analysis, claim_specs, active_filter = _analysis_from_ledger(
+        Path(database),
+        start=start,
+        end_exclusive=end_exclusive,
+        timezone_name=timezone_name,
+    )
+    claims = generate_claim_registry(
+        analysis,
+        claim_specs=claim_specs,
+        correlation_specs=[],
+    )
+    return build_study_json(
+        analysis_bundle=analysis,
+        claims_bundle=claims,
+        active_filter=active_filter,
+    )
+
+
+__all__ = ["build_ledger_dashboard_view", "build_ledger_study_json", "dashboard_view_from_canonical"]

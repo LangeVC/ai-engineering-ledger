@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://langevc.github.io/ael/schema/living/study-diff-0.4.json",
+  "title": "AEL study diff 0.4",
+  "type": "object",
+  "required": [
+    "record_type",
+    "schema_version",
+    "algorithm_version",
+    "from_snapshot_id",
+    "to_snapshot_id",
+    "changes",
+    "content_hash"
+  ],
+  "properties": {
+    "record_type": {
+      "const": "study_diff"
+    },
+    "schema_version": {
+      "const": "0.4"
+    },
+    "algorithm_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "from_snapshot_id": {
+      "type": "string"
+    },
+    "to_snapshot_id": {
+      "type": "string"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "domain",
+          "record_id",
+          "change_type",
+          "reason_code"
+        ],
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "change_type": {
+            "enum": [
+              "added",
+              "removed",
+              "changed",
+              "unchanged"
+            ]
+          },
+          "reason_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "before": {},
+          "after": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "additionalProperties": false
+}
+

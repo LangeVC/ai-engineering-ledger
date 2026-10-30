@@ -1,4 +1,4 @@
-"""Minimal dependency-free adapter demonstrating the v0.1 lifecycle."""
+"""Minimal dependency-free adapter demonstrating the v0.4 conformance lifecycle."""
 from __future__ import annotations
 
 import hashlib
@@ -7,6 +7,15 @@ from typing import Any
 
 class ExampleAdapter:
     source = "example"
+    manifest = {
+        "schema_version": "0.4",
+        "adapter_id": "example",
+        "source": "example",
+        "surface": "fixture",
+        "capabilities": ["historical"],
+        "checkpoint_semantics": "stable source row id",
+        "evidence_states": ["value", "unknown", "unsupported"],
+    }
 
     def capabilities(self) -> list[dict[str, Any]]:
         return [{"capability": "historical", "status": "ready", "read_only_probe": True}]

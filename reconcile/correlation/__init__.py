@@ -1,5 +1,17 @@
-"""Evidence-aware project and council correlation."""
+"""Evidence-aware project, council and cross-domain association."""
 
-from .model import Correlation, CorrelationLedger, aggregate_council
+from .model import (
+    AssociationLedger,
+    AssociationLink,
+    Correlation,
+    CorrelationLedger,
+    aggregate_council,
+)
 
-__all__ = ["Correlation", "CorrelationLedger", "aggregate_council"]
+__all__ = [
+    "AssociationLedger",
+    "AssociationLink",
+    "Correlation",
+    "CorrelationLedger",
+    "aggregate_council",
+]
