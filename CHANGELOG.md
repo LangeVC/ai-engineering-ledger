@@ -3,6 +3,29 @@
 All notable changes to AI Engineering Ledger are documented here. Release
 versions follow Semantic Versioning.
 
+## 0.4.0 — 2026-10-30
+
+### Living Study Data Engine
+
+- Added persistent collection-job and source-health contracts over the existing
+  collector orchestration.
+- Added content-addressed immutable Study snapshots, an atomic local `latest`
+  pointer, semantic diffs and machine-readable change summaries.
+- Added additive `ael.study.data-export@0.4` output while retaining canonical
+  v0.3 Study data inside each build.
+- Added explicit task/session/repository/change/release association links,
+  process/infrastructure/capability evidence records and conservative cost
+  allocation with an `unallocated` remainder.
+- Added a credential-free adapter conformance kit and local Living Study
+  dashboard projection.
+- Added `collect run` and `study build/list/diff/export` CLI workflows.
+
+### Boundaries
+
+- Public Study hosting, articles and social/SEO artifacts remain out of scope.
+  The application release and Homebrew distribution are delivery concerns,
+  not Study-publication features.
+
 ## 0.3.0 — 2026-10-30
 
 ### Study-data adapters and evidence contracts

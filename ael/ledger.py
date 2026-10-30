@@ -25,6 +25,7 @@ from importers.manual.importer import export_canonical_measurements, parse_manua
 
 
 SCHEMA_VERSION = "0.2"
+LIVING_SCHEMA_VERSION = "0.4"
 GAUGE_METRICS = {
     "quota_limit", "quota_used", "quota_remaining", "quota_percent_used",
     "quota_percent_remaining", "credit_balance", "credits_consumed",
@@ -163,9 +164,77 @@ class OperationalLedger:
                 );
                 CREATE INDEX IF NOT EXISTS idx_observations_scope
                   ON observations(source, account, observed_at);
+                CREATE TABLE IF NOT EXISTS collection_jobs (
+                  job_id TEXT PRIMARY KEY,
+                  source_alias TEXT NOT NULL UNIQUE,
+                  cadence TEXT NOT NULL,
+                  stale_after_seconds INTEGER,
+                  enabled INTEGER NOT NULL DEFAULT 1,
+                  checkpoint_json TEXT NOT NULL DEFAULT '{}',
+                  last_run_id TEXT,
+                  revision INTEGER NOT NULL DEFAULT 1,
+                  updated_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS collection_runs (
+                  run_id TEXT PRIMARY KEY,
+                  job_id TEXT NOT NULL REFERENCES collection_jobs(job_id),
+                  trigger TEXT NOT NULL,
+                  status TEXT NOT NULL,
+                  started_at TEXT NOT NULL,
+                  finished_at TEXT,
+                  result_json TEXT NOT NULL DEFAULT '{}'
+                );
+                CREATE INDEX IF NOT EXISTS idx_collection_runs_job
+                  ON collection_runs(job_id, started_at);
+                CREATE TABLE IF NOT EXISTS source_health (
+                  health_id TEXT PRIMARY KEY,
+                  source_alias TEXT NOT NULL,
+                  state TEXT NOT NULL,
+                  reason_code TEXT NOT NULL,
+                  rule_version TEXT NOT NULL,
+                  evaluated_at TEXT NOT NULL,
+                  last_attempt_at TEXT,
+                  last_success_at TEXT,
+                  details_json TEXT NOT NULL DEFAULT '{}'
+                );
+                CREATE INDEX IF NOT EXISTS idx_source_health_alias
+                  ON source_health(source_alias, evaluated_at);
+                CREATE TABLE IF NOT EXISTS study_snapshots (
+                  snapshot_id TEXT PRIMARY KEY,
+                  parent_snapshot_id TEXT,
+                  status TEXT NOT NULL,
+                  schema_version TEXT NOT NULL,
+                  transformation_version TEXT NOT NULL,
+                  filter_json TEXT NOT NULL,
+                  manifest_path TEXT,
+                  content_hash TEXT,
+                  created_at TEXT NOT NULL,
+                  finalized_at TEXT,
+                  warnings_json TEXT NOT NULL DEFAULT '[]'
+                );
+                CREATE TABLE IF NOT EXISTS living_pointers (
+                  pointer_name TEXT PRIMARY KEY,
+                  snapshot_id TEXT NOT NULL REFERENCES study_snapshots(snapshot_id),
+                  updated_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS evidence_domain_records (
+                  record_id TEXT PRIMARY KEY,
+                  domain TEXT NOT NULL,
+                  schema_version TEXT NOT NULL,
+                  observed_from TEXT NOT NULL,
+                  observed_to TEXT NOT NULL,
+                  confidence TEXT NOT NULL,
+                  coverage_state TEXT NOT NULL,
+                  provenance_json TEXT NOT NULL,
+                  payload_json TEXT NOT NULL
+                );
                 """
             )
             conn.execute("INSERT OR REPLACE INTO metadata VALUES ('schema_version', ?)", (SCHEMA_VERSION,))
+            conn.execute(
+                "INSERT OR REPLACE INTO metadata VALUES ('living_schema_version', ?)",
+                (LIVING_SCHEMA_VERSION,),
+            )
         os.chmod(self.database, 0o600)
 
     def health(self) -> dict[str, Any]:

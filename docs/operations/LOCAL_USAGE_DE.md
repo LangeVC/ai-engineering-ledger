@@ -304,3 +304,44 @@ Für Cron oder `launchd` nie API-Keys in die Crontab schreiben. Verwende bestehe
 - Er setzt unbekannte Resetzeitpunkte nicht aus einem Tarifnamen her.
 - Er setzt keinen erfolgreichen Live-Zugriff voraus: Credentials, Provider-Login und Netzverbindung werden erst beim jeweiligen Capture benötigt.
 - Er behandelt Gateway-/Agent-Telemetrie nicht als Ersatz für Provider-Abrechnung und Provider-Abrechnung nicht als Ersatz für Laufzeitkontext.
+
+## 10. Living Study aktualisieren (v0.4)
+
+Die Living Study verwendet weiterhin dieselbe lokale SQLite-Datenbank. Zuerst
+werden fällige Jobs geprüft; der Dry-Run kontaktiert keinen Provider:
+
+```bash
+ael collect run --dry-run --at 2026-10-30T12:00:00Z
+```
+
+Nach den normalen Imports wird ein unveränderlicher Build für einen halboffenen
+Zeitraum erzeugt:
+
+```bash
+ael study build \
+  --start 2026-04-26 \
+  --end-exclusive 2026-11-01
+
+ael study list
+```
+
+Zwei Builds lassen sich deterministisch vergleichen. Die Ausgabe enthält
+Reason Codes und Daten, keine automatisch formulierten Behauptungen:
+
+```bash
+ael study diff \
+  --from-snapshot SNAPSHOT_A \
+  --to-snapshot SNAPSHOT_B \
+  --output "$HOME/.local/share/ael/exports/study-diff.json"
+
+ael study export \
+  --snapshot latest \
+  --from-snapshot SNAPSHOT_A \
+  --output "$HOME/.local/share/ael/exports/living-study.json"
+```
+
+Der lokale `latest`-Pointer wird erst nach Schema-, Privacy-, Hash- und
+Replay-Prüfung aktualisiert. Warnungen zu Staleness oder Teilabdeckung sind im
+Dashboard und JSON sichtbar, blockieren einen technisch validen Build aber
+nicht. Ein fehlender oder nicht unterstützter Providerwert bleibt `unknown`
+beziehungsweise `unsupported`; er wird nicht als Nullwert erfunden.

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://langevc.github.io/ael/schema/living/study-snapshot-0.4.json",
+  "title": "AEL study snapshot 0.4",
+  "type": "object",
+  "required": [
+    "record_type",
+    "schema_version",
+    "snapshot_id",
+    "status",
+    "created_at",
+    "filter",
+    "transformation_version"
+  ],
+  "properties": {
+    "record_type": {
+      "const": "study_snapshot"
+    },
+    "schema_version": {
+      "const": "0.4"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^snap_[a-f0-9]{20,64}$"
+    },
+    "parent_snapshot_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "finalized",
+        "failed"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finalized_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "filter": {
+      "type": "object"
+    },
+    "transformation_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["schema", "privacy", "hashes", "replay"],
+      "properties": {
+        "schema": {"type": "boolean"},
+        "privacy": {"type": "boolean"},
+        "hashes": {"type": "boolean"},
+        "replay": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}
+
