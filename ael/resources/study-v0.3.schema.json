@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael.local/schema/study-v0.3.schema.json",
+  "title": "AEL adapter, study JSON, claim and correlation contract v0.3",
+  "description": "Versioned data boundary for adapter observations and deterministic study JSON. v0.2 records using this envelope remain readable.",
+  "oneOf": [
+    {"$ref": "#/$defs/adapter_record"},
+    {"$ref": "#/$defs/claim"},
+    {"$ref": "#/$defs/correlation"},
+    {"$ref": "#/$defs/study_bundle"}
+  ],
+  "$defs": {
+    "schema_version": {
+      "enum": ["0.2", "0.3"]
+    },
+    "alias": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "half_open_interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end_exclusive", "timezone", "semantics"],
+      "properties": {
+        "start": {"$ref": "#/$defs/timestamp"},
+        "end_exclusive": {"$ref": "#/$defs/timestamp"},
+        "timezone": {"type": "string", "minLength": 1},
+        "semantics": {"const": "[start,end_exclusive)"}
+      }
+    },
+    "source_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "surface", "entitlement", "plan", "account_alias", "auth_mode"],
+      "properties": {
+        "provider": {"$ref": "#/$defs/alias"},
+        "surface": {"$ref": "#/$defs/alias"},
+        "entitlement": {"$ref": "#/$defs/alias"},
+        "plan": {"$ref": "#/$defs/alias"},
+        "account_alias": {"$ref": "#/$defs/alias"},
+        "auth_mode": {"enum": ["api_key", "oauth", "subscription", "local_session", "manual"]}
+      }
+    },
+    "revision_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["native_id", "native_revision", "content_hash", "comparison", "action", "supersedes"],
+      "properties": {
+        "native_id": {"type": "string", "minLength": 1},
+        "native_revision": {"type": "integer", "minimum": 1},
+        "content_hash": {"$ref": "#/$defs/sha256"},
+        "comparison": {"enum": ["new", "exact_repeat", "content_changed"]},
+        "action": {"enum": ["insert", "deduplicate", "create_revision"]},
+        "supersedes": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"comparison": {"const": "new"}}, "required": ["comparison"]},
+          "then": {"properties": {"action": {"const": "insert"}, "supersedes": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"comparison": {"const": "exact_repeat"}}, "required": ["comparison"]},
+          "then": {"properties": {"action": {"const": "deduplicate"}}}
+        },
+        {
+          "if": {"properties": {"comparison": {"const": "content_changed"}}, "required": ["comparison"]},
+          "then": {"properties": {"action": {"const": "create_revision"}, "supersedes": {"type": "string", "minLength": 1}}}
+        }
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "observed_from", "observed_to_exclusive", "sample_count", "limitations", "warning_codes"],
+      "properties": {
+        "status": {"enum": ["complete", "partial", "unknown", "unsupported", "unverified", "unavailable"]},
+        "observed_from": {"type": ["string", "null"], "format": "date-time"},
+        "observed_to_exclusive": {"type": ["string", "null"], "format": "date-time"},
+        "sample_count": {"type": "integer", "minimum": 0},
+        "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "warning_codes": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"}}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "partial"}}, "required": ["status"]},
+          "then": {"properties": {"warning_codes": {"minItems": 1}}}
+        }
+      ]
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "method"],
+      "properties": {
+        "level": {"enum": ["high", "medium", "low", "unknown"]},
+        "method": {"type": "string", "minLength": 1}
+      }
+    },
+    "formula": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "registry_id", "expression", "unit_contract"],
+      "properties": {
+        "version": {"type": "string", "minLength": 1},
+        "registry_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "expression": {"type": "string", "minLength": 1},
+        "unit_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["operand_units", "output_unit", "compatible"],
+          "properties": {
+            "operand_units": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "output_unit": {"type": "string", "minLength": 1},
+            "compatible": {"const": true}
+          }
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_id", "scope_version", "interval", "dimensions"],
+      "properties": {
+        "scope_id": {"type": "string", "minLength": 1},
+        "scope_version": {"type": "integer", "minimum": 1},
+        "interval": {"$ref": "#/$defs/half_open_interval"},
+        "dimensions": {"type": "object"}
+      }
+    },
+    "analytic_common": {
+      "type": "object",
+      "required": ["schema_version", "id", "formula", "scope", "evidence_ids", "coverage", "confidence", "unit", "value", "value_state"],
+      "properties": {
+        "schema_version": {"$ref": "#/$defs/schema_version"},
+        "id": {"type": "string", "minLength": 1},
+        "formula": {"$ref": "#/$defs/formula"},
+        "scope": {"$ref": "#/$defs/scope"},
+        "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "coverage": {"$ref": "#/$defs/coverage"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "unit": {"type": "string", "minLength": 1},
+        "value": {"type": ["number", "integer", "string", "null"]},
+        "value_state": {"enum": ["observed", "evidenced_zero", "partial", "unknown", "unsupported", "unverified", "unavailable"]},
+        "warnings": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"value_state": {"enum": ["unknown", "unsupported", "unverified", "unavailable"]}}, "required": ["value_state"]},
+          "then": {"properties": {"value": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"value_state": {"const": "evidenced_zero"}}, "required": ["value_state"]},
+          "then": {"properties": {"value": {"enum": [0, "0", "0.0"]}}}
+        },
+        {
+          "if": {"properties": {"value_state": {"const": "observed"}}, "required": ["value_state"]},
+          "then": {"properties": {"value": {"not": {"type": "null"}}}}
+        }
+      ]
+    },
+    "adapter_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_type", "schema_version", "record_id", "source", "semantic_family", "metric", "value", "unit", "billing_assertion", "observed_at", "evidence_ids", "revision"],
+      "properties": {
+        "record_type": {"const": "adapter_record"},
+        "schema_version": {"$ref": "#/$defs/schema_version"},
+        "record_id": {"type": "string", "minLength": 1},
+        "source": {"$ref": "#/$defs/source_identity"},
+        "semantic_family": {"enum": ["raw_token_activity", "provider_billing", "subscription_entitlement", "engineering_output"]},
+        "metric": {"type": "string", "minLength": 1},
+        "value": {"type": ["number", "integer", "string", "null"]},
+        "unit": {"type": "string", "minLength": 1},
+        "billing_assertion": {"type": "boolean"},
+        "observed_at": {"$ref": "#/$defs/timestamp"},
+        "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "revision": {"$ref": "#/$defs/revision_decision"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"semantic_family": {"const": "raw_token_activity"}}, "required": ["semantic_family"]},
+          "then": {"properties": {"billing_assertion": {"const": false}}}
+        }
+      ]
+    },
+    "claim": {
+      "allOf": [
+        {"$ref": "#/$defs/analytic_common"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_type", "schema_version", "id", "formula", "scope", "evidence_ids", "coverage", "confidence", "unit", "value", "value_state", "causality_assertion", "provider_attribution"],
+          "properties": {
+            "record_type": {"const": "claim"},
+            "schema_version": {"$ref": "#/$defs/schema_version"},
+            "id": {"type": "string", "minLength": 1},
+            "formula": {"$ref": "#/$defs/formula"},
+            "scope": {"$ref": "#/$defs/scope"},
+            "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "coverage": {"$ref": "#/$defs/coverage"},
+            "confidence": {"$ref": "#/$defs/confidence"},
+            "unit": {"type": "string", "minLength": 1},
+            "value": {"type": ["number", "integer", "string", "null"]},
+            "value_state": {"enum": ["observed", "evidenced_zero", "partial", "unknown", "unsupported", "unverified", "unavailable"]},
+            "causality_assertion": {"const": false},
+            "provider_attribution": {"const": false},
+            "warnings": {"type": "array", "items": {"type": "string", "minLength": 1}}
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "formula": {
+                "properties": {
+                  "unit_contract": {
+                    "properties": {"operand_units": {"contains": {"const": "raw_token_activity"}}}
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {"not": {"pattern": "(?i)(allowance|credit|quota)"}}
+            }
+          }
+        }
+      ]
+    },
+    "correlation": {
+      "allOf": [
+        {"$ref": "#/$defs/analytic_common"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_type", "schema_version", "id", "formula", "scope", "evidence_ids", "coverage", "confidence", "unit", "value", "value_state", "left_dimension", "right_dimension", "sample_size", "causality_assertion"],
+          "properties": {
+            "record_type": {"const": "correlation"},
+            "schema_version": {"$ref": "#/$defs/schema_version"},
+            "id": {"type": "string", "minLength": 1},
+            "formula": {"$ref": "#/$defs/formula"},
+            "scope": {"$ref": "#/$defs/scope"},
+            "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "coverage": {"$ref": "#/$defs/coverage"},
+            "confidence": {"$ref": "#/$defs/confidence"},
+            "unit": {"type": "string", "minLength": 1},
+            "value": {"type": ["number", "integer", "string", "null"]},
+            "value_state": {"enum": ["observed", "evidenced_zero", "partial", "unknown", "unsupported", "unverified", "unavailable"]},
+            "warnings": {"type": "array", "items": {"type": "string", "minLength": 1}},
+            "left_dimension": {"type": "string", "minLength": 1},
+            "right_dimension": {"type": "string", "minLength": 1},
+            "sample_size": {"type": "integer", "minimum": 0},
+            "causality_assertion": {"const": false}
+          }
+        }
+      ]
+    },
+    "study_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_type", "schema_version", "transformation_version", "scope", "claims", "correlations", "coverage", "warnings", "content_hash"],
+      "properties": {
+        "record_type": {"const": "study_bundle"},
+        "schema_version": {"$ref": "#/$defs/schema_version"},
+        "transformation_version": {"type": "string", "minLength": 1},
+        "scope": {"$ref": "#/$defs/scope"},
+        "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "correlations": {"type": "array", "items": {"$ref": "#/$defs/correlation"}},
+        "coverage": {"type": "array", "items": {"$ref": "#/$defs/coverage"}},
+        "warnings": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "content_hash": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

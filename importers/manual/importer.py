@@ -21,7 +21,7 @@ Complies with PRD US-07.a, US-07.b, US-07.c, US-07.d, US-07.e, US-07.f:
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple, Union
 import hashlib
@@ -503,7 +503,6 @@ def export_canonical_measurements(
     - No tokens are hallucinated
     """
     if generate_ulid_fn is None:
-        import time, os
         # Minimal deterministic or counter-based fallback
         counter = [0]
         def generate_ulid_fn():
@@ -701,6 +700,66 @@ def generate_manual_evidence_descriptor(
 # ==============================================================================
 # PRD US-07.e: Distinct entry types & Preview/Confirm Session Workflow
 # ==============================================================================
+
+def build_subscription_plan_snapshot(
+    product_template: str,
+    account_id: str,
+    observed_at: str,
+    *,
+    plan_name: Optional[str] = None,
+    amount: Optional[Union[Decimal, float, int, str]] = None,
+    currency: Optional[str] = None,
+    billing_period: Optional[str] = None,
+    evidence_id: Optional[str] = None,
+    human_confirmed: bool = True,
+) -> Dict[str, Any]:
+    """Build a deterministic JSON-ready plan snapshot with explicit unknowns.
+
+    This captures subscription facts only. It never derives token usage, quota, or
+    billing truth from local runtime observations.
+    """
+    if product_template not in ALLOWED_PRODUCTS:
+        raise ManualImportValidationError(f"Unknown product_template: {product_template!r}")
+    if not account_id or not isinstance(account_id, str):
+        raise ManualImportValidationError("account_id must be a non-empty string")
+    validate_rfc3339_timestamp(observed_at, "observed_at")
+    if not human_confirmed:
+        raise ManualImportValidationError("manual subscription snapshot requires human confirmation")
+
+    amount_value: Optional[str] = None
+    if amount is not None:
+        amount_value = str(validate_credit_amount(amount, "subscription amount"))
+        if not currency or len(currency) != 3:
+            raise ManualImportValidationError("known subscription amount requires a three-letter currency")
+    normalized_currency = currency.upper() if currency else None
+
+    def field(value: Optional[str]) -> Dict[str, Any]:
+        return {"state": "value" if value is not None else "unknown", "value": value}
+
+    product = ALLOWED_PRODUCTS[product_template]
+    snapshot = {
+        "schema_version": "0.3.0",
+        "snapshot_kind": "subscription_plan",
+        "product_template": product_template,
+        "product": product["canonical_product"],
+        "source": product["default_source"],
+        "account_id": account_id,
+        "observed_at": observed_at,
+        "plan_name": field(plan_name),
+        "amount": {"state": "value" if amount_value is not None else "unknown", "value": amount_value,
+                   "currency": normalized_currency},
+        "billing_period": field(billing_period),
+        "usage": {"state": "unknown", "reason": "subscription snapshot does not assert runtime usage"},
+        "provenance": {
+            "class": "P1",
+            "method": "human_manual_entry",
+            "human_confirmed": True,
+            "evidence_id": evidence_id,
+        },
+    }
+    canonical = json.dumps(snapshot, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    snapshot["idempotency_key"] = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return snapshot
 
 @dataclass
 class ManualSubscriptionEntry:

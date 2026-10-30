@@ -1,0 +1,70 @@
+{
+  "schema_version": "0.3.0",
+  "scope_id": "ael-study-default",
+  "scope_version": 1,
+  "status": "frozen",
+  "timezone": "Europe/Berlin",
+  "reporting_interval": {
+    "semantics": "half-open",
+    "notation": "[start, end_exclusive)",
+    "start": "2026-04-26",
+    "end_exclusive": "2026-11-01",
+    "selection_status": "frozen",
+    "interpretation": "Date-only boundaries resolve to Europe/Berlin local midnight before UTC normalization; observations satisfy start <= observed_at < end_exclusive."
+  },
+  "analysis_cutoff": {
+    "at": "2026-11-01T00:00:00Z",
+    "status": "frozen",
+    "semantics": "Only evidence available at or before this cutoff may contribute to the frozen v0.3 study build."
+  },
+  "measurement_cutover": {
+    "retrospective_until_exclusive": "2026-10-29T00:00:00+01:00",
+    "prospective_from": "2026-10-29T00:00:00+01:00",
+    "status": "frozen",
+    "semantics": "Observations before the shared boundary are reconstructed; observations at or after it are prospectively collected. The classification does not imply provider completeness."
+  },
+  "organizations": [
+    {
+      "alias": "langevc",
+      "assignment_status": "configured"
+    }
+  ],
+  "source_aliases": [
+    {"alias": "deepseek-main", "provider": "deepseek", "assignment_status": "configured"},
+    {"alias": "byteplus-01", "provider": "byteplus", "assignment_status": "configured"},
+    {"alias": "byteplus-02", "provider": "byteplus", "assignment_status": "configured"},
+    {"alias": "byteplus-03", "provider": "byteplus", "assignment_status": "configured"},
+    {"alias": "byteplus-04", "provider": "byteplus", "assignment_status": "configured"},
+    {"alias": "byteplus-05", "provider": "byteplus", "assignment_status": "configured"},
+    {"alias": "claude-pro", "provider": "claude", "assignment_status": "configured"},
+    {"alias": "codex-plus", "provider": "codex", "assignment_status": "configured"},
+    {"alias": "antigravity-pro", "provider": "antigravity", "assignment_status": "configured"},
+    {"alias": "kilocode-main", "provider": "kilo", "assignment_status": "configured"},
+    {"alias": "github-langevc", "provider": "github", "assignment_status": "configured"},
+    {"alias": "forgejo-langevc", "provider": "forgejo", "assignment_status": "configured"}
+  ],
+  "accounts": [
+    {"alias": "deepseek-main", "source_alias": "deepseek-main", "assignment_status": "configured"},
+    {"alias": "byteplus-01", "source_alias": "byteplus-01", "assignment_status": "configured"},
+    {"alias": "byteplus-02", "source_alias": "byteplus-02", "assignment_status": "configured"},
+    {"alias": "byteplus-03", "source_alias": "byteplus-03", "assignment_status": "configured"},
+    {"alias": "byteplus-04", "source_alias": "byteplus-04", "assignment_status": "configured"},
+    {"alias": "byteplus-05", "source_alias": "byteplus-05", "assignment_status": "configured"},
+    {"alias": "claude-pro", "source_alias": "claude-pro", "assignment_status": "configured"},
+    {"alias": "codex-plus", "source_alias": "codex-plus", "assignment_status": "configured"},
+    {"alias": "antigravity-pro", "source_alias": "antigravity-pro", "assignment_status": "configured"},
+    {"alias": "kilocode-main", "source_alias": "kilocode-main", "assignment_status": "configured"}
+  ],
+  "products": [],
+  "repositories": [],
+  "assignment_policy": {
+    "product_or_repository_without_alias": "explicit_unassigned",
+    "unassigned_status": "unassigned"
+  },
+  "revision_policy": {
+    "frozen_status": "frozen",
+    "mutation": "new_scope_version_required",
+    "previous_scope_id": null,
+    "previous_scope_version": null
+  }
+}

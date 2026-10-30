@@ -145,24 +145,19 @@ def extract_correlation_ids(client_tag: str, route_summary: Dict[str, Any]) -> T
         elif token.startswith("task_"):
             task_id = token
 
-    # Check route_summary if dict
+    def explicit_string(value: Any) -> Optional[str]:
+        return value.strip() if isinstance(value, str) and value.strip() else None
+
+    # Check route_summary if dict. Nulls, numbers and inferred nearby context are not IDs.
     if isinstance(route_summary, dict):
         if not session_id and "session_id" in route_summary:
-            val = str(route_summary["session_id"]).strip()
-            if val:
-                session_id = val
+            session_id = explicit_string(route_summary["session_id"])
         if not project_id and "project_id" in route_summary:
-            val = str(route_summary["project_id"]).strip()
-            if val:
-                project_id = val
+            project_id = explicit_string(route_summary["project_id"])
         if not council_id and "council_id" in route_summary:
-            val = str(route_summary["council_id"]).strip()
-            if val:
-                council_id = val
+            council_id = explicit_string(route_summary["council_id"])
         if not task_id and "task_id" in route_summary:
-            val = str(route_summary["task_id"]).strip()
-            if val:
-                task_id = val
+            task_id = explicit_string(route_summary["task_id"])
 
     return session_id, project_id, council_id, task_id
 
@@ -210,6 +205,43 @@ class FaigateAdapter:
                 "checked_at": checked_at,
                 "read_only_probe": True,
             }
+
+    def capability_report(self) -> Dict[str, Any]:
+        health = self.probe_health()
+        return {
+            "schema_version": "0.3.0",
+            "source": self.config.source,
+            "account_alias": self.config.account_alias,
+            "capability": "runtime_execution_observation",
+            "status": health["health"],
+            "read_only": True,
+            "billing_truth": False,
+            "correlation_policy": "explicit_ids_only",
+            "health": health,
+        }
+
+    def dry_run(
+        self,
+        since_id: int = 0,
+        start_time: Optional[float] = None,
+        end_time: Optional[float] = None,
+        client_tag_filter: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Return a metadata-only collection preview; the adapter is always read-only."""
+        result = self.collect(since_id, start_time, end_time, client_tag_filter, limit)
+        coverage = result.account_run.get("coverage") if result.account_run else None
+        return {
+            "status": result.status,
+            "dry_run": True,
+            "writes": 0,
+            "capability": self.capability_report(),
+            "coverage": coverage,
+            "records": len(result.records),
+            "idempotency_keys": [event["idempotency_key"] for event in result.events],
+            "truth_semantics": "execution_observation",
+            "billing_truth": False,
+        }
 
     def read_requests(
         self,

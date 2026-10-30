@@ -20,6 +20,7 @@ from typing import Any, Iterable
 from collectors.byteplus.collector import BytePlusCollector
 from collectors.deepseek.collector import DeepSeekCollector, DeepSeekConfig, parse_inference_usage
 from collectors.kilo.adapter import KiloAdapter
+from ael.study_view import build_ledger_dashboard_view
 from importers.manual.importer import export_canonical_measurements, parse_manual_template_json
 
 
@@ -239,8 +240,16 @@ class OperationalLedger:
             "incomplete": bool(incomplete), "errors": errors,
         }
 
-    def provider_report(self, from_time: str | None = None, to_time: str | None = None) -> dict[str, Any]:
+    def provider_report(
+        self,
+        from_time: str | None = None,
+        to_time: str | None = None,
+        *,
+        end_exclusive: str | None = None,
+    ) -> dict[str, Any]:
         self.initialize()
+        if to_time and end_exclusive:
+            raise ValueError("use either to_time or end_exclusive, not both")
         clauses: list[str] = []
         params: list[str] = []
         if from_time:
@@ -249,6 +258,9 @@ class OperationalLedger:
         if to_time:
             clauses.append("observed_at <= ?")
             params.append(normalize_timestamp(to_time))
+        if end_exclusive:
+            clauses.append("observed_at < ?")
+            params.append(normalize_timestamp(end_exclusive))
         query = "SELECT * FROM observations"
         if clauses:
             query += " WHERE " + " AND ".join(clauses)
@@ -275,6 +287,7 @@ class OperationalLedger:
                 "observation_count": 0,
                 "first_observed_at": row["observed_at"], "last_observed_at": row["observed_at"],
                 "confidence_distribution": {}, "value": "0",
+                "provenance_distribution": {}, "evidence_ids": set(),
             })
             group["observation_count"] += 1
             group["last_observed_at"] = row["observed_at"]
@@ -282,17 +295,36 @@ class OperationalLedger:
             group["latest_reset_at"] = row["reset_at"]
             confidence = row["confidence"]
             group["confidence_distribution"][confidence] = group["confidence_distribution"].get(confidence, 0) + 1
+            provenance = f"{row['provenance_class']}:{row['provenance_method']}"
+            group["provenance_distribution"][provenance] = group["provenance_distribution"].get(provenance, 0) + 1
+            group["evidence_ids"].add(row["evidence_sha256"])
             if row["aggregation"] == "gauge":
                 group["value"] = row["value_text"]
             else:
                 group["value"] = format(Decimal(group["value"]) + Decimal(row["value_text"]), "f")
+        rendered_groups = []
+        for key in sorted(groups):
+            group = groups[key]
+            group["evidence_ids"] = sorted(group["evidence_ids"])
+            rendered_groups.append(group)
         return {
             "schema_version": SCHEMA_VERSION,
             "filters": {"from": normalize_timestamp(from_time) if from_time else None,
-                        "to": normalize_timestamp(to_time) if to_time else None},
+                        "to": normalize_timestamp(to_time) if to_time else None,
+                        "end_exclusive": normalize_timestamp(end_exclusive) if end_exclusive else None},
             "observation_count": len(rows),
-            "groups": [groups[key] for key in sorted(groups)],
+            "groups": rendered_groups,
         }
+
+    def study_report(self, start: str | None = None, end_exclusive: str | None = None) -> dict[str, Any]:
+        """Return the canonical v0.3 study view for the local ledger."""
+        self.initialize()
+        return build_ledger_dashboard_view(
+            self.database,
+            start=start,
+            end_exclusive=end_exclusive,
+            timezone_name="Europe/Berlin",
+        )
 
 
 def _finalize(item: dict[str, Any]) -> dict[str, Any]:
