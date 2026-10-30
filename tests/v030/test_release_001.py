@@ -16,7 +16,7 @@ from ael.resources import RESOURCE_NAMES, load_json, read_text
 
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 PACKAGED_RESOURCE_PATHS = {
     "ael/resources/study-v0.3.schema.json",
     "ael/resources/study_scope.json",

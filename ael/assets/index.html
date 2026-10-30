@@ -14,6 +14,7 @@
   </header>
   <nav aria-label="Primary">
     <button class="nav-tab active" data-view="overview">Ledger</button>
+    <button class="nav-tab" data-view="living">Living study</button>
     <button class="nav-tab" data-view="capture">Capture</button>
     <button class="nav-tab" data-view="sources">Sources</button>
   </nav>
@@ -37,6 +38,45 @@
         <section class="panel"><h2>Filtered claims</h2><p>Each value keeps coverage, confidence, and evidence references.</p><div id="claim-list" class="analysis-list"><p>No claims in range.</p></div></section>
         <section class="panel"><h2>Filtered correlations</h2><p>Correlations appear only for comparable paired periods and never imply causality.</p><div id="correlation-list" class="analysis-list"><p>No comparable correlation in range.</p></div></section>
       </div>
+    </section>
+
+    <section id="living" class="view" aria-labelledby="living-title">
+      <p class="eyebrow">Immutable builds, visible change</p>
+      <h1 id="living-title">Living study.</h1>
+      <p class="lede">Build history and source freshness stay local. Warnings explain limitations without blocking a valid export.</p>
+      <div id="living-warnings" class="notice hidden" role="status" aria-live="polite"></div>
+      <div class="living-grid">
+        <section class="panel">
+          <h2>Study builds</h2>
+          <label>Selected snapshot
+            <select id="living-snapshot"><option value="">No snapshots yet</option></select>
+          </label>
+          <div id="living-builds" class="analysis-list"><p>No finalized builds.</p></div>
+        </section>
+        <section class="panel">
+          <h2>Source health</h2>
+          <div class="table-wrap">
+            <table>
+              <caption>Latest deterministic health state</caption>
+              <thead><tr><th>Source</th><th>State</th><th>Reason</th><th>Evaluated</th></tr></thead>
+              <tbody id="living-health"><tr><td colspan="4">No health records.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <section class="panel mapping-panel">
+        <h2>Versioned mapping revision</h2>
+        <p>Each save appends a revision; existing Study builds remain immutable.</p>
+        <form id="mapping-form" class="mapping-form">
+          <label>Mapping id <input name="mapping_id" required pattern="[A-Za-z0-9._-]+"></label>
+          <label>Source alias <input name="source_alias" required></label>
+          <label>Product alias <input name="product_alias"></label>
+          <label>Repository alias <input name="repository_alias"></label>
+          <label>Capability alias <input name="capability_alias"></label>
+          <button class="button" type="submit">Append revision</button>
+        </form>
+        <div id="mapping-revisions" class="analysis-list"><p>No mapping revisions.</p></div>
+      </section>
     </section>
 
     <section id="capture" class="view" aria-labelledby="capture-title">

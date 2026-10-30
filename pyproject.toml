@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-engineering-ledger"
-version = "0.3.0"
+version = "0.4.0"
 description = "Local-first usage, cost, provenance, and data-quality ledger for AI engineering"
 readme = "README.md"
 license = "Apache-2.0"

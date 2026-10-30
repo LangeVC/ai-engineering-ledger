@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://langevc.github.io/ael/schema/living/source-health-0.4.json",
+  "title": "AEL source health 0.4",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_alias",
+    "state",
+    "reason_code",
+    "rule_version",
+    "evaluated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.4"
+    },
+    "source_alias": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "healthy",
+        "due",
+        "stale",
+        "partial",
+        "failed",
+        "manual_due",
+        "unknown",
+        "unsupported",
+        "unauthorized"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rule_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_attempt_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "last_success_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "details": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
+

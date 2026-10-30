@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://langevc.github.io/ael/schema/living/collection-job-0.4.json",
+  "title": "AEL collection job 0.4",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "job_id",
+    "source_alias",
+    "cadence",
+    "enabled",
+    "revision"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.4"
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_alias": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cadence": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly"
+      ]
+    },
+    "stale_after_seconds": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "checkpoint": {
+      "type": "object"
+    },
+    "last_run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
+

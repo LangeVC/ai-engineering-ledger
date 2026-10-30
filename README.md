@@ -99,10 +99,30 @@ ael setup
 ael --help
 ael import --help
 ael collect --help
+ael study --help
 
 # Validate the installation and SQLite schema.
 ael doctor
 ```
+
+### Living-study workflow (v0.4)
+
+```bash
+# Show due configured jobs without contacting a provider.
+ael collect run --dry-run
+
+# Materialize an immutable build from the current ledger range.
+ael study build --start 2026-04-26 --end-exclusive 2026-11-01
+ael study list
+
+# Compare two verified builds and export data-only JSON.
+ael study diff --from-snapshot SNAPSHOT_A --to-snapshot SNAPSHOT_B --output diff.json
+ael study export --snapshot latest --from-snapshot SNAPSHOT_A --output living-study.json
+```
+
+Finalized builds are content-addressed below `<AEL_HOME>/living-study/`.
+Warnings are visible but do not act as a publication gate. Public hosting,
+articles, social assets and SEO remain outside AEL.
 
 By default, AEL uses:
 
@@ -162,12 +182,13 @@ Postgres deployment possible without making a server a prerequisite.
 
 ## Project status
 
-Version 0.3 is an alpha release. The CLI, schema, local workspace, operational
-imports and reporting contracts are usable. It adds local harness adapters,
-canonical filtered Study JSON, a claims/correlation contract and one shared
-calculation path for the loopback-only dashboard and export. Optional local
-Tesseract capture remains available. Provider capabilities remain
-evidence-driven and may differ by account, plan and region.
+Version 0.4 is the current alpha release. The CLI, schema, local workspace,
+operational imports and reporting contracts are usable. It includes local
+harness adapters, canonical filtered Study JSON, persistent collection jobs,
+source health, immutable Study builds, semantic diffs, additive data-only JSON
+and a local Living Study view while retaining v0.3 read compatibility.
+Optional local Tesseract capture remains available. Provider capabilities
+remain evidence-driven and may differ by account, plan and region.
 
 ## Development
 

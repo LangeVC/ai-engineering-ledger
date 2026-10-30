@@ -7,9 +7,20 @@ import sys
 from pathlib import Path
 
 from ael import __version__
-from ael.ledger import OperationalLedger
+from ael.ledger import OperationalLedger, utc_now
 from ael.paths import resolve_database, setup_workspace, workspace_health, workspace_paths
+from ael.study_view import build_ledger_study_json
 from ael.webui import serve
+from collectors.orchestration.jobs import CollectionJobStore
+from export.living import (
+    SnapshotRegistry,
+    SnapshotVerification,
+    build_changelog,
+    build_diff,
+    build_living_export,
+    build_snapshot,
+)
+from export.privacy import PrivacyProfile, scan_artifacts
 from export.study import StudyExporter
 from reconcile.coverage import ComparableScope, compare
 from storage.recovery import RecoveryManager
@@ -63,6 +74,21 @@ def _ingest(args: argparse.Namespace) -> int:
     )
     status = "success" if receipt["rejected"] == 0 and not receipt["incomplete"] else "partial"
     return _emit(status, args.command, **receipt, persistence="sqlite")
+
+
+def _collect_dispatch(args: argparse.Namespace) -> int:
+    if args.collect_action != "run":
+        missing = [name for name in ("source", "account", "input", "kind") if not getattr(args, name)]
+        if missing:
+            raise ValueError("legacy collect requires " + ", ".join("--" + name for name in missing))
+        return _ingest(args)
+    database = resolve_database(args.database)
+    ledger = OperationalLedger(database)
+    ledger.initialize()
+    jobs = CollectionJobStore(database)
+    due = [job.to_contract() for job in jobs.due(now=args.at or utc_now())]
+    return _emit("success", "collect run", due=due, due_count=len(due),
+                 execution="dry_run" if args.dry_run else "requires_registered_adapter_runtime")
 
 
 def _report_providers(args: argparse.Namespace) -> int:
@@ -137,6 +163,106 @@ def _ui(args: argparse.Namespace) -> int:
                  port=args.port, open_browser=not args.no_open)
 
 
+def _living_root(home: str | None) -> Path:
+    return Path(workspace_paths(home)["home"]) / "living-study"
+
+
+def _source_health(database: Path) -> list[dict[str, object]]:
+    import sqlite3
+    if not database.is_file():
+        return []
+    with sqlite3.connect(database) as connection:
+        connection.row_factory = sqlite3.Row
+        tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if "source_health" not in tables:
+            return []
+        rows = connection.execute(
+            """SELECT h.* FROM source_health h JOIN (
+                 SELECT source_alias, MAX(evaluated_at) AS evaluated_at
+                 FROM source_health GROUP BY source_alias
+               ) latest ON latest.source_alias=h.source_alias AND latest.evaluated_at=h.evaluated_at
+               ORDER BY h.source_alias"""
+        ).fetchall()
+    return [{key: row[key] for key in ("source_alias", "state", "reason_code", "rule_version",
+                                        "evaluated_at", "last_attempt_at", "last_success_at")} for row in rows]
+
+
+def _study_build(args: argparse.Namespace) -> int:
+    setup_workspace(args.home)
+    database = resolve_database(args.database)
+    OperationalLedger(database).initialize()
+    study = build_ledger_study_json(database, start=args.start, end_exclusive=args.end_exclusive)
+    artifacts = {"study.json": study}
+    aliases = sorted({str(group["account"]) for group in study.get("groups", [])})
+    privacy = scan_artifacts(artifacts, profile=PrivacyProfile.create("living-study", aliases))
+    if not privacy["passed"]:
+        raise ValueError("study build failed privacy gate")
+    registry = SnapshotRegistry(_living_root(args.home))
+    parent = None
+    try:
+        parent = registry.latest()["snapshot_id"]
+    except FileNotFoundError:
+        pass
+    draft = build_snapshot(
+        artifacts,
+        filter_spec=study["active_filter"],
+        transformation_version="0.4.0",
+        parent_snapshot_id=parent,
+        warnings=tuple(study.get("notices", [])),
+    )
+    manifest = registry.finalize(draft, SnapshotVerification.valid())
+    return _emit("success", "study build", snapshot_id=manifest["snapshot_id"],
+                 content_hash=manifest["content_hash"], warnings=manifest["warnings"])
+
+
+def _study_list(args: argparse.Namespace) -> int:
+    root = _living_root(args.home)
+    snapshots = SnapshotRegistry(root).list() if root.is_dir() else []
+    return _emit("success", "study list", snapshots=snapshots)
+
+
+def _snapshot_data(root: Path, snapshot_id: str) -> tuple[dict[str, object], dict[str, object]]:
+    registry = SnapshotRegistry(root)
+    manifest = registry.verify(snapshot_id)
+    path = root / "snapshots" / snapshot_id / "study.json"
+    return manifest, json.loads(path.read_text())
+
+
+def _study_diff(args: argparse.Namespace) -> int:
+    root = _living_root(args.home)
+    before_manifest, before = _snapshot_data(root, args.from_snapshot)
+    after_manifest, after = _snapshot_data(root, args.to_snapshot)
+    diff = build_diff(before_manifest, after_manifest, before, after)
+    if args.output:
+        Path(args.output).write_text(json.dumps(diff, sort_keys=True, indent=2) + "\n")
+        os.chmod(args.output, 0o600)
+    return _emit("success", "study diff", diff=diff, output=args.output)
+
+
+def _study_export(args: argparse.Namespace) -> int:
+    root = _living_root(args.home)
+    registry = SnapshotRegistry(root)
+    snapshot_id = args.snapshot
+    if snapshot_id == "latest":
+        snapshot_id = registry.latest()["snapshot_id"]
+    manifest, study = _snapshot_data(root, snapshot_id)
+    diff = None
+    if args.from_snapshot:
+        previous_manifest, previous = _snapshot_data(root, args.from_snapshot)
+        diff = build_diff(previous_manifest, manifest, previous, study)
+    living = build_living_export(
+        study_v03=study,
+        snapshot=manifest,
+        source_health=_source_health(resolve_database(args.database)),
+        diff=diff,
+        changelog=build_changelog(diff) if diff else [],
+    )
+    Path(args.output).write_text(json.dumps(living, sort_keys=True, indent=2) + "\n")
+    os.chmod(args.output, 0o600)
+    return _emit("success", "study export", output=args.output,
+                 snapshot_id=snapshot_id, content_hash=living["content_hash"])
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ael")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -150,10 +276,12 @@ def build_parser() -> argparse.ArgumentParser:
         snap.add_argument("--" + name, required=True)
     snap.add_argument("--confidence", type=float, default=0.5); snap.set_defaults(run=_snapshot)
     collect = sub.add_parser("collect")
-    collect.add_argument("--source", required=True, choices=["deepseek", "byteplus", "claude", "codex", "antigravity", "kilo", "faigate", "github", "forgejo"])
-    collect.add_argument("--account", required=True); collect.add_argument("--input", required=True)
-    collect.add_argument("--database"); collect.add_argument("--kind", required=True)
-    collect.add_argument("--observed-at"); collect.set_defaults(run=_ingest)
+    collect.add_argument("collect_action", nargs="?", choices=["run"])
+    collect.add_argument("--source", choices=["deepseek", "byteplus", "claude", "codex", "antigravity", "kilo", "faigate", "github", "forgejo"])
+    collect.add_argument("--account"); collect.add_argument("--input")
+    collect.add_argument("--database"); collect.add_argument("--kind")
+    collect.add_argument("--observed-at"); collect.add_argument("--at"); collect.add_argument("--dry-run", action="store_true")
+    collect.set_defaults(run=_collect_dispatch)
     imp = sub.add_parser("import")
     imp.add_argument("--database"); imp.add_argument("--source", required=True)
     imp.add_argument("--account", required=True); imp.add_argument("--kind", required=True,
@@ -184,6 +312,21 @@ def build_parser() -> argparse.ArgumentParser:
     ui.add_argument("--home"); ui.add_argument("--database")
     ui.add_argument("--bind", default="127.0.0.1"); ui.add_argument("--port", type=int, default=0)
     ui.add_argument("--no-open", action="store_true"); ui.set_defaults(run=_ui)
+    study = sub.add_parser("study")
+    study_sub = study.add_subparsers(dest="study_command", required=True)
+    study_build = study_sub.add_parser("build")
+    study_build.add_argument("--home"); study_build.add_argument("--database")
+    study_build.add_argument("--start"); study_build.add_argument("--end-exclusive")
+    study_build.set_defaults(run=_study_build)
+    study_list = study_sub.add_parser("list"); study_list.add_argument("--home"); study_list.set_defaults(run=_study_list)
+    study_diff = study_sub.add_parser("diff")
+    study_diff.add_argument("--home"); study_diff.add_argument("--from-snapshot", required=True)
+    study_diff.add_argument("--to-snapshot", required=True); study_diff.add_argument("--output")
+    study_diff.set_defaults(run=_study_diff)
+    study_export = study_sub.add_parser("export")
+    study_export.add_argument("--home"); study_export.add_argument("--database")
+    study_export.add_argument("--snapshot", default="latest"); study_export.add_argument("--from-snapshot")
+    study_export.add_argument("--output", required=True); study_export.set_defaults(run=_study_export)
     preview = sub.add_parser("delete-preview"); preview.add_argument("--input", required=True); preview.add_argument("--account", required=True); preview.set_defaults(run=_delete_preview)
     delete = sub.add_parser("delete"); delete.add_argument("--input", required=True); delete.add_argument("--account", required=True)
     delete.add_argument("--confirm", required=True); delete.set_defaults(run=_delete)

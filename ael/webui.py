@@ -27,6 +27,8 @@ from urllib.parse import parse_qs, urlparse
 
 from ael.ledger import OperationalLedger, normalize_capture
 from ael.paths import resolve_database, setup_workspace
+from collectors.orchestration.jobs import CADENCE_SECONDS, CollectionJob, CollectionJobStore
+from export.living import SnapshotRegistry
 from importers.manual.importer import export_canonical_measurements, parse_manual_template_json
 
 
@@ -328,6 +330,54 @@ class AliasStore:
             return len(data["aliases"]) != before
 
 
+class MappingStore:
+    """Append-only local product/repository/capability mapping revisions."""
+
+    def __init__(self, home: Path):
+        self.path = home / "mapping-revisions.json"
+        self._lock = threading.RLock()
+
+    def load(self) -> list[dict[str, Any]]:
+        with self._lock:
+            if self.path.is_symlink():
+                raise ValueError("refusing symlinked mapping configuration")
+            if not self.path.exists():
+                return []
+            value = json.loads(self.path.read_text())
+            if not isinstance(value, list):
+                raise ValueError("invalid mapping revision configuration")
+            return value
+
+    def append(self, value: dict[str, Any]) -> dict[str, Any]:
+        allowed = {"mapping_id", "source_alias", "product_alias", "repository_alias", "capability_alias"}
+        if not isinstance(value, dict) or set(value) - allowed:
+            raise ValueError("mapping contains unsupported fields")
+        mapping_id = str(value.get("mapping_id", "")).strip()
+        source_alias = str(value.get("source_alias", "")).strip()
+        if not mapping_id or not source_alias:
+            raise ValueError("mapping id and source alias are required")
+        if any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-" for char in mapping_id):
+            raise ValueError("mapping id contains unsupported characters")
+        with self._lock:
+            values = self.load()
+            previous = [item for item in values if item["mapping_id"] == mapping_id]
+            revision = max((int(item["revision"]) for item in previous), default=0) + 1
+            core = {
+                "mapping_id": mapping_id,
+                "revision": revision,
+                "source_alias": source_alias,
+                "product_alias": str(value.get("product_alias", "")).strip() or None,
+                "repository_alias": str(value.get("repository_alias", "")).strip() or None,
+                "capability_alias": str(value.get("capability_alias", "")).strip() or None,
+            }
+            core["revision_id"] = "maprev_" + hashlib.sha256(_json_bytes(core)).hexdigest()[:24]
+            values.append(core)
+            temp = self.path.with_name("." + self.path.name + "." + secrets.token_hex(8))
+            _write_private(temp, _json_bytes(values) + b"\n")
+            os.replace(temp, self.path)
+            return core
+
+
 @dataclass
 class Draft:
     draft_id: str
@@ -449,6 +499,7 @@ class AELWebServer(ThreadingHTTPServer):
         self.home = home
         self.database = database
         self.aliases = AliasStore(home)
+        self.mappings = MappingStore(home)
         self.drafts = DraftStore(home)
         self.bootstrap_token = secrets.token_urlsafe(32)
         self.bootstrap_used = False
@@ -578,8 +629,78 @@ class AELRequestHandler(BaseHTTPRequestHandler):
                 self._json(HTTPStatus.BAD_REQUEST, error="invalid study filter")
                 return
             self._json(HTTPStatus.OK, data=report)
+        elif path == "/api/living":
+            query = parse_qs(request.query, keep_blank_values=False)
+            if set(query) - {"snapshot"} or any(len(values) != 1 for values in query.values()):
+                self._json(HTTPStatus.BAD_REQUEST, error="invalid living-study filter")
+                return
+            try:
+                living = self._living_view(query.get("snapshot", [None])[0])
+            except ValueError:
+                self._json(HTTPStatus.BAD_REQUEST, error="invalid living-study filter")
+                return
+            self._json(HTTPStatus.OK, data=living)
         else:
             self._json(HTTPStatus.NOT_FOUND, error="not found")
+
+    def _living_view(self, selected_snapshot: str | None) -> dict[str, Any]:
+        snapshots: list[dict[str, Any]] = []
+        latest_id: str | None = None
+        living_root = self.server.home / "living-study"
+        if living_root.is_dir() and not living_root.is_symlink():
+            registry = SnapshotRegistry(living_root)
+            snapshots = registry.list()
+            try:
+                latest_id = registry.latest()["snapshot_id"]
+            except FileNotFoundError:
+                latest_id = None
+        if selected_snapshot and selected_snapshot not in {item["snapshot_id"] for item in snapshots}:
+            raise ValueError("unknown living-study snapshot")
+
+        health: list[dict[str, Any]] = []
+        if self.server.database.is_file():
+            with sqlite3.connect(self.server.database) as connection:
+                connection.row_factory = sqlite3.Row
+                tables = {row[0] for row in connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )}
+                if "source_health" in tables:
+                    rows = connection.execute(
+                        """SELECT h.* FROM source_health h
+                           JOIN (
+                             SELECT source_alias, MAX(evaluated_at) AS evaluated_at
+                             FROM source_health GROUP BY source_alias
+                           ) latest
+                           ON latest.source_alias = h.source_alias
+                           AND latest.evaluated_at = h.evaluated_at
+                           ORDER BY h.source_alias"""
+                    ).fetchall()
+                    health = [
+                        {
+                            "source_alias": row["source_alias"],
+                            "state": row["state"],
+                            "reason_code": row["reason_code"],
+                            "rule_version": row["rule_version"],
+                            "evaluated_at": row["evaluated_at"],
+                            "last_success_at": row["last_success_at"],
+                        }
+                        for row in rows
+                    ]
+        selected = selected_snapshot or latest_id
+        return {
+            "schema_version": "0.4",
+            "contract": "ael.local-ui.living-study@0.4",
+            "snapshots": snapshots,
+            "latest_snapshot_id": latest_id,
+            "selected_snapshot_id": selected,
+            "source_health": health,
+            "mapping_revisions": self.server.mappings.load(),
+            "warnings": [
+                f"{item['source_alias']}: {item['reason_code']}"
+                for item in health
+                if item["state"] != "healthy"
+            ],
+        }
 
     def _asset(self, name: str, content_type: str) -> None:
         body = files("ael.assets").joinpath(name).read_bytes()
@@ -598,7 +719,18 @@ class AELRequestHandler(BaseHTTPRequestHandler):
                 return
             data = self._read_json()
             if path == "/api/config/aliases":
-                self._json(HTTPStatus.OK, data=self.server.aliases.upsert(data.get("alias", {})))
+                alias = self.server.aliases.upsert(data.get("alias", {}))
+                OperationalLedger(self.server.database).initialize()
+                cadence = alias["cadence"]
+                stale_after = CADENCE_SECONDS.get(cadence)
+                if stale_after is not None:
+                    stale_after *= 2
+                CollectionJobStore(self.server.database).save(
+                    CollectionJob(alias["id"], cadence=cadence, stale_after_seconds=stale_after)
+                )
+                self._json(HTTPStatus.OK, data=alias)
+            elif path == "/api/living/mappings":
+                self._json(HTTPStatus.OK, data=self.server.mappings.append(data.get("mapping", {})))
             elif path == "/api/import/preview":
                 self._import_preview(data)
             elif path == "/api/import/confirm":
