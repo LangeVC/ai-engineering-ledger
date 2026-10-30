@@ -20,34 +20,21 @@ Conforms to schemas:
 from __future__ import annotations
 
 import copy
-import dataclasses
 import datetime
-import decimal
 import hashlib
 import json
-import os
-import re
 import secrets
 import time
 from dataclasses import dataclass, field
 from decimal import Decimal
-from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 from collectors.account import (
     HEALTH_READY,
-    HEALTH_DEGRADED,
-    HEALTH_UNAUTHORIZED,
-    HEALTH_UNVERIFIED,
-    HEALTH_UNSUPPORTED,
     CAPABILITY_READY,
     CAPABILITY_UNVERIFIED,
-    CAPABILITY_UNAUTHORIZED,
     CAPABILITY_UNSUPPORTED,
     BytePlusProfileCoordinator,
-    IsolatedProfileBinding,
-    ProfileIsolationManager,
-    ReadOnlyAccountProbe,
     SecretResolver,
     GLOBAL_REDACTOR,
 )
@@ -231,6 +218,8 @@ class BytePlusCollector:
         secret_resolver: Optional[SecretResolver] = None,
     ) -> None:
         self.profiles = list(profiles)
+        if len(set(self.profiles)) != len(self.profiles):
+            raise ValueError("BytePlus account aliases must be unique")
         self.coordinator = coordinator or BytePlusProfileCoordinator(
             profiles=self.profiles,
             secret_resolver=secret_resolver,
@@ -1339,3 +1328,64 @@ class BytePlusCollector:
             prev_snap = snap
 
         return comparisons
+
+    def build_isolated_study_rows(
+        self,
+        run_result: BytePlusRunResult,
+    ) -> List[Dict[str, Any]]:
+        """Build deterministic study rows without cross-account aggregation.
+
+        Coding-plan allowance, inference usage, and provider billing remain
+        separate semantic series.  This method intentionally has no total or
+        per-task allocation output: consumers may group the returned rows only
+        after selecting compatible account and product-domain dimensions.
+        """
+        semantics = {
+            DOMAIN_CODING_PLAN: "subscription_plan_allowance",
+            DOMAIN_INFERENCE: "api_inference_usage",
+            DOMAIN_BILLING: "provider_billing",
+        }
+        configured = set(self.profiles)
+        rows: List[Dict[str, Any]] = []
+        for account_run in run_result.account_runs:
+            alias = account_run.account_alias
+            if alias not in configured or account_run.profile_id != alias:
+                raise ValueError(f"unbound BytePlus account run: {alias}")
+            if account_run.product_domain not in semantics:
+                raise ValueError(f"unsupported BytePlus product domain: {account_run.product_domain}")
+            for observation in account_run.observations:
+                if observation.account_alias != alias:
+                    raise ValueError("cross-account BytePlus observation refused")
+                if observation.product_domain != account_run.product_domain:
+                    raise ValueError("cross-domain BytePlus observation refused")
+                value: Optional[Union[int, str, float]]
+                if isinstance(observation.value, Decimal):
+                    value = str(observation.value)
+                else:
+                    value = observation.value
+                rows.append(
+                    {
+                        "source": SOURCE_NAME,
+                        "account_alias": alias,
+                        "profile_id": account_run.profile_id,
+                        "product_domain": account_run.product_domain,
+                        "semantic": semantics[account_run.product_domain],
+                        "capability": account_run.capability,
+                        "metric": observation.metric,
+                        "state": observation.state,
+                        "value": value,
+                        "unit": observation.unit,
+                        "observed_at": observation.observed_at,
+                        "evidence_ref": observation.evidence_ref,
+                        "dimensions": copy.deepcopy(observation.dimensions),
+                    }
+                )
+        return sorted(
+            rows,
+            key=lambda row: (
+                row["account_alias"],
+                row["product_domain"],
+                row["metric"] or "",
+                row["observed_at"],
+            ),
+        )

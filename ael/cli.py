@@ -3,10 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sqlite3
 import sys
 from pathlib import Path
 
+from ael import __version__
 from ael.ledger import OperationalLedger
 from ael.paths import resolve_database, setup_workspace, workspace_health, workspace_paths
 from ael.webui import serve
@@ -139,6 +139,7 @@ def _ui(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ael")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init"); init.add_argument("directory"); init.set_defaults(run=_init)
     setup = sub.add_parser("setup"); setup.add_argument("--home"); setup.set_defaults(run=_setup)

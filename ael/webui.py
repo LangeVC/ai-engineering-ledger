@@ -23,10 +23,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from ael.ledger import OperationalLedger, normalize_capture
-from ael.paths import resolve_database, setup_workspace, workspace_paths
+from ael.paths import resolve_database, setup_workspace
 from importers.manual.importer import export_canonical_measurements, parse_manual_template_json
 
 
@@ -541,7 +541,8 @@ class AELRequestHandler(BaseHTTPRequestHandler):
         if not self._host_ok():
             self._json(HTTPStatus.MISDIRECTED_REQUEST, error="invalid host")
             return
-        path = urlparse(self.path).path
+        request = urlparse(self.path)
+        path = request.path
         if path in {"/", "/index.html"}:
             self._asset("index.html", "text/html; charset=utf-8")
             return
@@ -562,6 +563,21 @@ class AELRequestHandler(BaseHTTPRequestHandler):
             self._json(HTTPStatus.OK, data=self.server.aliases.load())
         elif path == "/api/reports/providers":
             self._json(HTTPStatus.OK, data=OperationalLedger(self.server.database).provider_report())
+        elif path == "/api/reports/study":
+            query = parse_qs(request.query, keep_blank_values=False)
+            unexpected = set(query) - {"start", "end_exclusive"}
+            if unexpected or any(len(values) != 1 for values in query.values()):
+                self._json(HTTPStatus.BAD_REQUEST, error="invalid study filter")
+                return
+            try:
+                report = OperationalLedger(self.server.database).study_report(
+                    start=query.get("start", [None])[0],
+                    end_exclusive=query.get("end_exclusive", [None])[0],
+                )
+            except ValueError:
+                self._json(HTTPStatus.BAD_REQUEST, error="invalid study filter")
+                return
+            self._json(HTTPStatus.OK, data=report)
         else:
             self._json(HTTPStatus.NOT_FOUND, error="not found")
 

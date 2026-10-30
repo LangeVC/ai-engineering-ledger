@@ -27,12 +27,10 @@ import datetime
 import decimal
 import hashlib
 import json
-import os
-import re
 import secrets
 import time
 from decimal import Decimal
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Crockford Base32 alphabet for ULID generation
 _CROCKFORD_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
@@ -257,15 +255,20 @@ class DeepSeekCollector:
         delimiter: Optional[str] = None,
         decimal_separator: Optional[str] = None,
         timezone_str: Optional[str] = None,
-        existing_keys: Optional[set] = None,
+        existing_keys: Optional[Union[set, Dict[str, str]]] = None,
     ) -> Tuple[List[DeepSeekRecord], DeepSeekImportReport]:
         """Parses CSV, JSON, or JSONL DeepSeek export and enforces invariants (US-05).
         Returns valid records and disjoint accounting report.
         """
         delim = delimiter or self.config.csv_delimiter
         dec_sep = decimal_separator or self.config.decimal_separator
-        tz = timezone_str or self.config.default_timezone
-        existing = existing_keys or set()
+        # Retain the argument for compatibility; dates are normalized by the
+        # canonical event conversion rather than mutating provider export text.
+        _ = timezone_str or self.config.default_timezone
+        # Preserve an explicitly supplied empty collection so a caller can reuse it
+        # as an incremental checkpoint across runs. ``existing_keys or set()``
+        # silently discarded an empty checkpoint and made the second run non-idempotent.
+        existing: Union[set, Dict[str, str]] = existing_keys if existing_keys is not None else set()
 
         report = DeepSeekImportReport()
         records: List[DeepSeekRecord] = []
@@ -319,14 +322,27 @@ class DeepSeekCollector:
                     pass
                 continue
 
-            # Idempotency / duplicate check key
+            # Stable logical identity plus semantic fingerprint.  Legacy set
+            # checkpoints keep their original behaviour; v0.3 mapping checkpoints
+            # distinguish an unchanged rerun from a corrected provider row.
             dedup_key = f"{rec.date}:{rec.model}"
-            if dedup_key in existing:
-                report.existing += 1
-                continue
-
-            existing.add(dedup_key)
-            report.accepted += 1
+            fingerprint = self._record_fingerprint(rec)
+            if isinstance(existing, dict):
+                previous = existing.get(dedup_key)
+                if previous == fingerprint:
+                    report.existing += 1
+                    continue
+                if previous is None:
+                    report.accepted += 1
+                else:
+                    report.corrected += 1
+                existing[dedup_key] = fingerprint
+            else:
+                if dedup_key in existing:
+                    report.existing += 1
+                    continue
+                existing.add(dedup_key)
+                report.accepted += 1
             records.append(rec)
 
             # Accumulate sum by group: (account, date, model, currency)
@@ -354,7 +370,26 @@ class DeepSeekCollector:
             g["reasoning_tokens"] += rec.reasoning_tokens
             g["cost"] += rec.cost
 
+        records.sort(key=lambda item: (item.date, item.model, item.line_number or 0))
+        report.sums_by_group = dict(sorted(report.sums_by_group.items()))
         return records, report
+
+    @staticmethod
+    def _record_fingerprint(record: DeepSeekRecord) -> str:
+        """Return a deterministic fingerprint of normalized provider semantics."""
+        canonical = {
+            "date": record.date,
+            "model": record.model,
+            "requests": record.requests,
+            "prompt_tokens": record.prompt_tokens,
+            "prompt_cache_hit_tokens": record.prompt_cache_hit_tokens,
+            "prompt_cache_miss_tokens": record.prompt_cache_miss_tokens,
+            "completion_tokens": record.completion_tokens,
+            "reasoning_tokens": record.reasoning_tokens,
+            "cost": str(record.cost),
+        }
+        raw = json.dumps(canonical, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
     def _validate_and_convert_row(
         self,

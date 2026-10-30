@@ -406,6 +406,62 @@ class KiloAdapter:
     ) -> KiloAggregateRecord:
         return parse_kilo_stats(raw_json)
 
+    def capability_report(self) -> Dict[str, Any]:
+        """Declare supported, read-only Kilo evidence surfaces."""
+        return {
+            "schema_version": "0.3.0",
+            "source": "kilo",
+            "account_alias": self.account_alias,
+            "capabilities": ["session_export", "request_usage", "aggregate_stats"],
+            "read_only": True,
+            "billing_truth": False,
+            "scope_policy": {
+                "session": "summary_only",
+                "request": "request_detail",
+                "aggregate": "aggregate_only",
+                "mixed_token_sum": "forbidden",
+            },
+        }
+
+    def dry_run_session(
+        self,
+        raw_json: Union[str, bytes, Dict[str, Any]],
+        external_council_id: Optional[str] = None,
+        external_task_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Parse and report coverage without writing records or exposing content."""
+        session, requests = self.parse_session(raw_json, external_council_id, external_task_id)
+        self.assert_aggregation_safety([session, *requests])
+        return {
+            "status": "ready",
+            "dry_run": True,
+            "writes": 0,
+            "capability": self.capability_report(),
+            "coverage": {
+                "session_id_present": bool(session.session_id),
+                "request_records": len(requests),
+                "scope_levels": ["session", "request"],
+                "source_version": session.raw_source_version,
+            },
+            "idempotency_keys": [session.idempotency_key, *(record.idempotency_key for record in requests)],
+        }
+
+    def dry_run_stats(self, raw_json: Union[str, bytes, Dict[str, Any]]) -> Dict[str, Any]:
+        aggregate = self.parse_stats(raw_json)
+        self.assert_aggregation_safety([aggregate])
+        return {
+            "status": "ready",
+            "dry_run": True,
+            "writes": 0,
+            "capability": self.capability_report(),
+            "coverage": {
+                "scope_levels": ["aggregate"],
+                "days": aggregate.days,
+                "source_version": aggregate.source_version,
+            },
+            "idempotency_keys": [aggregate.idempotency_key],
+        }
+
     @staticmethod
     def assert_aggregation_safety(
         records: List[Union[KiloSessionRecord, KiloRequestRecord, KiloAggregateRecord]],
